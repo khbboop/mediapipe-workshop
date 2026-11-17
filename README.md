@@ -60,3 +60,7 @@ Works in recent Chrome and Edge. Safari is mostly fine but slower. Mobile varies
 ## Credits
 
 Built on Google's [MediaPipe Tasks Vision](https://developers.google.com/mediapipe/solutions/vision) (Face Landmarker + Hand Landmarker) and [p5.js](https://p5js.org).
+
+## Bonus: 바다냥 편의점 (pixel game)
+
+`games/cat-seaside-store/index.html` 은 고양이 점장이 바닷가 편의점을 운영하는 픽셀 아트 PC 게임이에요. 파일 하나로 되어 있어서 브라우저로 바로 열면 됩니다 (방향키 이동 · Space 행동 · Q 버리기 · P 일시정지 · M 소리).

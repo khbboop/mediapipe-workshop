@@ -1,0 +1,1245 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>바다냥 편의점</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: one centered 16:9 pixel canvas; menus float above it as paper-receipt panels. */
+  :root {
+    --night: #13213a;   /* page ground: deep evening sea */
+    --paper: #fff6e3;   /* receipt paper panels */
+    --ink: #3b2a2a;     /* pixel outline brown */
+    --tangerine: #ff8a3d; /* cat-fur accent, primary buttons */
+    --sea: #3fa7d6;     /* secondary accent */
+    --muted: #8a7b6b;
+    --display: "Jua", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    --body: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--night);
+    color: var(--paper);
+    font-family: var(--body);
+    display: flex; align-items: center; justify-content: center;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 16px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  #wrap {
+    position: relative;
+    width: min(100%, calc((100vh - 40px) * 16 / 9));
+    aspect-ratio: 16 / 9;
+    max-width: 100%;
+  }
+  #game {
+    display: block; width: 100%; height: 100%;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+    border: 4px solid var(--ink); box-sizing: border-box;
+    box-shadow: 0 10px 0 #0a1324;
+    background: #000;
+  }
+  #overlay[hidden] { display: none; }
+  #overlay {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(10, 18, 36, .45);
+  }
+  .panel {
+    background: var(--paper); color: var(--ink);
+    border: 4px solid var(--ink);
+    box-shadow: 0 6px 0 rgba(0,0,0,.35);
+    padding: 18px 22px;
+    width: min(92%, 760px);
+    max-height: 88%;
+    overflow: auto;
+    box-sizing: border-box;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .panel h1, .panel h2, .panel h3 { font-family: var(--display); font-weight: 400; margin: 0; text-wrap: balance; }
+  .panel h1 { font-size: clamp(28px, 5vw, 52px); color: var(--tangerine); text-shadow: 3px 3px 0 var(--ink); letter-spacing: .02em; }
+  .panel h2 { font-size: clamp(20px, 3vw, 30px); }
+  .panel h3 { font-size: 17px; color: var(--muted); letter-spacing: .04em; border-bottom: 2px dashed #d8c8ad; padding-bottom: 4px; }
+  .panel p { margin: 0; line-height: 1.55; }
+  .sub { color: var(--muted); }
+  .keys { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 14px; }
+  kbd {
+    font-family: var(--body); font-weight: 700; font-size: 12px;
+    background: #fff; border: 2px solid var(--ink); border-bottom-width: 4px;
+    padding: 0 6px; border-radius: 3px; white-space: nowrap;
+  }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+  button {
+    font-family: var(--display); font-size: 16px;
+    background: var(--tangerine); color: #fff;
+    border: 3px solid var(--ink); border-radius: 0;
+    padding: 6px 14px; cursor: pointer;
+    box-shadow: 0 4px 0 var(--ink);
+    text-shadow: 1px 1px 0 rgba(0,0,0,.25);
+  }
+  button.alt { background: var(--sea); }
+  button.ghost { background: #fff; color: var(--ink); text-shadow: none; }
+  button:hover:not(:disabled) { filter: brightness(1.07); }
+  button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+  button:disabled { background: #d6ccbb; color: #8f8474; cursor: not-allowed; text-shadow: none; }
+  button:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+  button.big { font-size: 20px; padding: 10px 18px; align-self: flex-end; }
+  .head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .money { font-family: var(--display); font-size: 22px; color: #b9770e; font-variant-numeric: tabular-nums; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; }
+  .stats div { background: #fff; border: 2px solid var(--ink); padding: 6px 8px; font-size: 13px; color: var(--muted); }
+  .stats b { display: block; font-family: var(--display); font-weight: 400; font-size: 22px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .rows { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px; }
+  .row { display: flex; align-items: center; gap: 10px; background: #fff; border: 2px solid var(--ink); padding: 6px 8px; min-width: 0; }
+  .row img { width: 32px; height: 32px; image-rendering: pixelated; flex: none; }
+  .row .nm { flex: 1; min-width: 0; font-weight: 700; }
+  .row small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .row button { font-size: 13px; padding: 4px 8px; box-shadow: 0 3px 0 var(--ink); }
+  .row.owned { opacity: .6; }
+  .banner { background: #ffe9a8; border: 2px solid var(--ink); padding: 8px 10px; font-weight: 700; }
+  @media (prefers-reduced-motion: reduce) { button:active:not(:disabled) { transform: none; } }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap">
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game" aria-label="바다냥 편의점 게임 화면"></canvas>
+  <div id="overlay"></div>
+</div>
+<script>
+(() => {
+'use strict';
+
+/* ============================================================
+   바다냥 편의점 — 고양이 점장이 바닷가 편의점을 운영하는 픽셀 게임
+   ============================================================ */
+
+const W = 320, H = 180, S = 3;           // world pixels, display scale
+const DAY_LEN = 150;                      // real seconds for 08:00 → 20:00
+const FONT = '"Jua","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif';
+const K = '#3b2a2a';
+const SAVE_KEY = 'seaside-cat-store-v1';
+
+const cv = document.getElementById('game');
+cv.width = W * S; cv.height = H * S;
+const ctx = cv.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+const wc = document.createElement('canvas');
+wc.width = W; wc.height = H;
+const g = wc.getContext('2d');
+const overlay = document.getElementById('overlay');
+
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+
+/* ---------- sprites ---------- */
+function spr(rows, pal) {
+  const h = rows.length, w = Math.max(...rows.map(r => r.length));
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const x = c.getContext('2d');
+  rows.forEach((r, j) => [...r].forEach((ch, i) => {
+    if (ch !== '.' && pal[ch]) { x.fillStyle = pal[ch]; x.fillRect(i, j, 1, 1); }
+  }));
+  return c;
+}
+
+const CAT = spr([
+  '.k.........k.',
+  'kpk.......kpk',
+  'kookkkkkkkook',
+  'koooooooooook',
+  'koweoooooweok',
+  'koeeoooooeeok',
+  'kpooowpwooopk',
+  '.kooowwwoook.',
+  '..kkkkkkkkk..',
+  '..kgggggggk..',
+  '.kogGgggGgok.',
+  '.kwgggggggwk.',
+  '..kgggGgggk..',
+  '..koooooook..',
+  '..kwwk.kwwk..',
+  '..kkkk.kkkk..',
+], { k: K, o: '#f4a25b', p: '#f29bb0', w: '#fff4e6', e: '#1d1d1d', g: '#4fa874', G: '#2f7a50' });
+
+const FISH = ['........', '........', '..kkkk.k', '.kooookk', 'koeoooko', '.kooookk', '..kkkk.k', '........'];
+const ICON = {
+  onigiri: spr(['...kk...', '..kwwk..', '.kwwwwk.', '.kwwwwk.', 'kwwwwwwk', 'kwnnnnwk', 'knnnnnnk', 'kkkkkkkk'],
+    { k: K, w: '#fffdf5', n: '#24453a' }),
+  milk: spr(['..kkkk..', '.kwwwwk.', 'kkkkkkkk', 'kwwwwwwk', 'kbbbbbbk', 'kwbbbbwk', 'kwwwwwwk', 'kkkkkkkk'],
+    { k: K, w: '#fffdf5', b: '#5aa7e6' }),
+  soda: spr(['...kk...', '..kcck..', '.kbccbk.', '.kbbbbk.', '.kbwbbk.', '.kbbbbk.', '.kbbbbk.', '.kkkkkk.'],
+    { k: K, b: '#4cc9f0', c: '#d6f6ff', w: '#ffffff' }),
+  fishsnack: spr(FISH, { k: K, o: '#a9c3d3', e: '#1d1d1d' }),
+  icecream: spr(['..kkkk..', '.kppppk.', 'kppwpppk', 'kppppppk', '.kkkkkk.', '.kyyyyk.', '..kyyk..', '...kk...'],
+    { k: K, p: '#ff9ec4', w: '#ffffff', y: '#d9a05b' }),
+  sunscreen: spr(['...kk...', '..kwwk..', '.kyyyyk.', '.kyyyyk.', '.kyoyyk.', '.kyyyyk.', '.kyyyyk.', '.kkkkkk.'],
+    { k: K, w: '#ffffff', y: '#ffd84d', o: '#ff7b39' }),
+  taiyaki: spr(FISH, { k: K, o: '#d99a45', e: '#6b3b16' }),
+};
+const STAR_ROWS = ['...k...', '..kyk..', 'kkyyykk', '.kyyyk.', '.kyyyk.', 'kyk.kyk', 'kk...kk'];
+const STAR_ON = spr(STAR_ROWS, { k: K, y: '#ffd34d' });
+const STAR_OFF = spr(STAR_ROWS, { k: K, y: '#d6ccbb' });
+const COIN = spr(['.kkkkk.', 'kyyyyyk', 'kywyyyk', 'kyyyyyk', 'kyyyyok', 'kyyyook', '.kkkkk.'],
+  { k: K, y: '#ffd34d', w: '#fff7c2', o: '#e0a82e' });
+
+/* ---------- data ---------- */
+const ITEMS = {
+  onigiri:   { name: '삼각김밥',   price: 15, cost: 6 },
+  milk:      { name: '우유',       price: 12, cost: 5 },
+  soda:      { name: '라무네',     price: 10, cost: 4 },
+  fishsnack: { name: '생선과자',   price: 16, cost: 6,  unlock: 60 },
+  icecream:  { name: '아이스크림', price: 20, cost: 8,  unlock: 100 },
+  sunscreen: { name: '선크림',     price: 32, cost: 14, unlock: 150 },
+  taiyaki:   { name: '붕어빵',     price: 26, cost: 0,  unlock: 220, cooked: true },
+};
+const STOCK_CAP = 30;
+const UPGRADES = {
+  slippers: { name: '말랑 슬리퍼', desc: '점장 이동 속도 +30%', cost: 90 },
+  basket:   { name: '장바구니',    desc: '물건을 2개까지 들 수 있어요', cost: 130 },
+  chime:    { name: '조개 풍경',   desc: '손님이 30% 더 오래 기다려요', cost: 110 },
+  sign:     { name: '반짝 간판',   desc: '손님이 더 자주 찾아와요', cost: 160 },
+};
+
+const SHELVES = [
+  { item: 'onigiri',   x: 6,   kind: 'shelf' },
+  { item: 'fishsnack', x: 34,  kind: 'shelf' },
+  { item: 'sunscreen', x: 62,  kind: 'shelf' },
+  { item: 'milk',      x: 90,  kind: 'fridge', band: '#5aa7e6' },
+  { item: 'soda',      x: 118, kind: 'fridge', band: '#4cc9f0' },
+  { item: 'icecream',  x: 146, kind: 'fridge', band: '#ff9ec4' },
+];
+const SH_Y = 38, SH_W = 26, SH_H = 36;
+const SLOTS = [104, 128, 152];
+const SLOT_X = 206;
+const GRID = { x: 14, y: 118, w: 40, h: 20 };   // taiyaki griddle island
+const BOUNDS = { x0: 6, x1: 172, y0: 84, y1: 174 };
+
+const CRITTERS = [
+  { type: 'dog',     fur: ['#d9a066', '#f0d2a8', '#a8774a'] },
+  { type: 'rabbit',  fur: ['#f4f4f4', '#e8d8c8', '#c9b29b'] },
+  { type: 'bear',    fur: ['#8b5a3c', '#6b4a33', '#c48a5a'] },
+  { type: 'penguin', fur: ['#2b2f3a'] },
+  { type: 'cat',     fur: ['#8a8f99', '#3d3d45', '#f2efe8', '#e8c27a'] },
+  { type: 'otter',   fur: ['#7a5236', '#8e6243'] },
+];
+const SHIRTS = ['#ff6b6b', '#ffd166', '#06d6a0', '#4cc9f0', '#b388eb', '#f78fb3', '#ffffff', '#ff9f43'];
+
+/* ---------- persistent state ---------- */
+function freshState() {
+  return {
+    day: 1, money: 60, rep: 3,
+    inv: { onigiri: 6, milk: 6, soda: 6, fishsnack: 0, icecream: 0, sunscreen: 0 },
+    unlocked: { onigiri: true, milk: true, soda: true },
+    up: {}, total: 0, night: false, won: false,
+  };
+}
+function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(st)); } catch (e) { /* storage unavailable */ } }
+function loadSave() {
+  try { const s = localStorage.getItem(SAVE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; }
+}
+
+let st = freshState();
+let run = newRun();
+let phase = 'title';   // title | day | paused | night
+let T = 0;             // ambient clock
+
+function newRun() {
+  return {
+    t: 0,
+    cat: { x: 96, y: 112, face: 1, held: [], moving: false, anim: 0 },
+    customers: [], spawnT: 2.5, gull: null, gullT: rand(18, 30),
+    grid: { state: 'idle', t: 0 },
+    floats: [], toasts: [],
+    stats: { served: 0, angry: 0, earned: 0, stolen: 0, shooed: 0 },
+    closing: false, warned: false,
+    crab: { x: 270, dir: 1, t: 0 },
+    stars: Array.from({ length: 34 }, () => [Math.random() * W, Math.random() * 25, Math.random() * 6]),
+  };
+}
+const hour = () => 8 + Math.min(run.t / DAY_LEN, 1) * 12;
+
+/* ---------- audio ---------- */
+const Sfx = {
+  ac: null, master: null, muted: false,
+  init() {
+    if (this.ac) { if (this.ac.state === 'suspended') this.ac.resume(); return; }
+    try {
+      this.ac = new (window.AudioContext || window.webkitAudioContext)();
+      this.master = this.ac.createGain();
+      this.master.gain.value = this.muted ? 0 : 1;
+      this.master.connect(this.ac.destination);
+      this.waves();
+    } catch (e) { this.ac = null; }
+  },
+  tone(f, d, type = 'square', v = 0.045, slide = 0, delay = 0) {
+    if (!this.ac) return;
+    const t = this.ac.currentTime + delay;
+    const o = this.ac.createOscillator(), gn = this.ac.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(f, t);
+    if (slide) o.frequency.linearRampToValueAtTime(Math.max(40, f + slide), t + d);
+    gn.gain.setValueAtTime(v, t);
+    gn.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(gn); gn.connect(this.master);
+    o.start(t); o.stop(t + d + 0.03);
+  },
+  waves() {
+    const ac = this.ac, len = ac.sampleRate * 2;
+    const buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 420;
+    const gn = ac.createGain(); gn.gain.value = 0.018;
+    const lfo = ac.createOscillator(); lfo.frequency.value = 0.13;
+    const lfoG = ac.createGain(); lfoG.gain.value = 0.014;
+    lfo.connect(lfoG); lfoG.connect(gn.gain);
+    src.connect(lp); lp.connect(gn); gn.connect(this.master);
+    src.start(); lfo.start();
+  },
+  toggle() { this.muted = !this.muted; if (this.master) this.master.gain.value = this.muted ? 0 : 1; },
+  pick()  { this.tone(880, .06); this.tone(1320, .07, 'square', .04, 0, .05); },
+  put()   { this.tone(660, .06); this.tone(440, .07, 'square', .04, 0, .05); },
+  coin()  { this.tone(988, .08, 'square', .05); this.tone(1319, .18, 'square', .05, 0, .08); },
+  bad()   { this.tone(240, .22, 'sawtooth', .04, -90); },
+  door()  { this.tone(1047, .18, 'triangle', .07); this.tone(784, .3, 'triangle', .07, 0, .17); },
+  gull()  { this.tone(1500, .1, 'sawtooth', .03, -700); this.tone(1400, .12, 'sawtooth', .03, -700, .13); },
+  sizzle(){ this.tone(200, .15, 'triangle', .05, 120); },
+  ding()  { this.tone(1568, .12, 'triangle', .06); this.tone(2093, .2, 'triangle', .05, 0, .1); },
+};
+
+/* ---------- input ---------- */
+const keys = {};
+const MOVE_KEYS = ['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' ', 'w', 'a', 's', 'd'];
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  const inPanel = e.target && e.target.tagName === 'BUTTON';
+  if (MOVE_KEYS.includes(k) && !(inPanel && (k === ' '))) e.preventDefault();
+  Sfx.init();
+  if (e.repeat) return;
+  keys[k] = true;
+  if (k === 'm') { Sfx.toggle(); toast(Sfx.muted ? '소리 끔' : '소리 켬'); return; }
+  if (phase === 'day') {
+    if (k === ' ' || k === 'e' || k === 'enter') interact();
+    else if (k === 'q') dropItem();
+    else if (k === 'p' || k === 'escape') pause();
+  } else if (phase === 'paused' && (k === 'p' || k === 'escape')) resume();
+});
+addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+addEventListener('pointerdown', () => Sfx.init());
+addEventListener('blur', () => { for (const k in keys) keys[k] = false; if (phase === 'day') pause(); });
+const held = (...ks) => ks.some(k => keys[k]);
+
+/* ---------- messages ---------- */
+function float(x, y, text, color = '#fff') { run.floats.push({ x, y, text, color, t: 0 }); }
+function toast(text) {
+  run.toasts = run.toasts.filter(t => t.text !== text);
+  run.toasts.push({ text, t: 0 });
+  if (run.toasts.length > 3) run.toasts.shift();
+}
+
+/* ---------- gameplay ---------- */
+const capacity = () => (st.up.basket ? 2 : 1);
+
+function startDay() {
+  run = newRun();
+  st.night = false;
+  phase = 'day';
+  overlay.hidden = true;
+  overlay.innerHTML = '';
+  toast(`${st.day}일차 · 바다냥 편의점 문 열었어요!`);
+  if (st.day === 1) setTimeout(() => toast('손님 말풍선의 물건을 진열대에서 집어 계산대로!'), 2600);
+  if (st.day === 2) setTimeout(() => toast('오늘부터 갈매기가 물건을 노려요. 가까이 가면 도망가요!'), 2600);
+  Sfx.ding();
+}
+
+function blocked(x, y) {
+  if (x < BOUNDS.x0 || x > BOUNDS.x1 || y < BOUNDS.y0 || y > BOUNDS.y1) return true;
+  if (st.unlocked.taiyaki && x > GRID.x - 4 && x < GRID.x + GRID.w + 4 && y > GRID.y - 2 && y < GRID.y + GRID.h + 6) return true;
+  return false;
+}
+
+function updateCat(dt) {
+  const c = run.cat;
+  let dx = 0, dy = 0;
+  if (held('arrowleft', 'a')) dx -= 1;
+  if (held('arrowright', 'd')) dx += 1;
+  if (held('arrowup', 'w')) dy -= 1;
+  if (held('arrowdown', 's')) dy += 1;
+  c.moving = !!(dx || dy);
+  if (c.moving) {
+    const len = Math.hypot(dx, dy), sp = 62 * (st.up.slippers ? 1.3 : 1) * dt;
+    const nx = c.x + dx / len * sp, ny = c.y + dy / len * sp;
+    if (!blocked(nx, c.y)) c.x = nx;
+    if (!blocked(c.x, ny)) c.y = ny;
+    if (dx) c.face = dx;
+    c.anim += dt;
+  }
+}
+
+function findTarget() {
+  const c = run.cat;
+  if (c.x > 156) {
+    for (const cu of run.customers) {
+      if (cu.state === 'wait' && cu.want.length && Math.abs(c.y - SLOTS[cu.slot]) < 13) return { type: 'cust', cu };
+    }
+  }
+  if (c.y < 98) {
+    let best = null, bd = 15;
+    for (const sh of SHELVES) {
+      const d = Math.abs(c.x - (sh.x + SH_W / 2));
+      if (d < bd) { bd = d; best = sh; }
+    }
+    if (best) return { type: 'shelf', sh: best };
+  }
+  if (st.unlocked.taiyaki) {
+    const gx = GRID.x + GRID.w / 2, gy = GRID.y + GRID.h / 2;
+    if (Math.abs(c.x - gx) < 34 && Math.abs(c.y - gy) < 22) return { type: 'grid' };
+  }
+  return null;
+}
+
+function hintFor(tg) {
+  const c = run.cat;
+  if (!tg) return '';
+  if (tg.type === 'shelf') {
+    const it = tg.sh.item, name = ITEMS[it].name;
+    if (!st.unlocked[it]) return '아직 들여놓지 않은 상품';
+    if (c.held.length >= capacity() && c.held.includes(it)) return `Space  ${name} 되돌려 놓기`;
+    if (c.held.length >= capacity()) return '손이 꽉 찼어요 (Q 내려놓기)';
+    return st.inv[it] > 0 ? `Space  ${name} 집기` : `${name} 품절!`;
+  }
+  if (tg.type === 'cust') return c.held.length ? 'Space  건네주기' : '주문한 물건을 가져오세요';
+  if (tg.type === 'grid') {
+    const s = run.grid.state;
+    if (s === 'idle') return 'Space  붕어빵 굽기';
+    if (s === 'cooking') return '굽는 중…';
+    if (s === 'ready') return c.held.length < capacity() ? 'Space  붕어빵 꺼내기' : '손이 꽉 찼어요';
+    return 'Space  탄 붕어빵 버리기';
+  }
+  return '';
+}
+
+function interact() {
+  const tg = findTarget(), c = run.cat;
+  if (!tg) return;
+  if (tg.type === 'shelf') {
+    const it = tg.sh.item, name = ITEMS[it].name;
+    if (!st.unlocked[it]) { toast('밤에 새 상품을 들여놓을 수 있어요'); return; }
+    if (c.held.length < capacity()) {
+      if (st.inv[it] > 0) { st.inv[it]--; c.held.push(it); Sfx.pick(); }
+      else { toast(`${name} 재고가 없어요. 밤에 주문하세요!`); Sfx.bad(); }
+    } else if (c.held.includes(it)) {
+      c.held.splice(c.held.lastIndexOf(it), 1); st.inv[it]++; Sfx.put();
+    } else { toast('손이 꽉 찼어요! Q로 내려놓기'); }
+  } else if (tg.type === 'cust') {
+    const cu = tg.cu;
+    let gave = 0;
+    for (let i = c.held.length - 1; i >= 0; i--) {
+      const idx = cu.want.findIndex((w, j) => w === c.held[i] && !cu.got[j]);
+      if (idx >= 0) { cu.got[idx] = true; c.held.splice(i, 1); gave++; }
+    }
+    if (!gave) { toast('주문한 물건이 아니에요'); Sfx.bad(); return; }
+    Sfx.pick();
+    if (cu.got.every(Boolean)) pay(cu);
+  } else if (tg.type === 'grid') {
+    const gr = run.grid;
+    if (gr.state === 'idle') { gr.state = 'cooking'; gr.t = 0; Sfx.sizzle(); }
+    else if (gr.state === 'ready' && c.held.length < capacity()) { c.held.push('taiyaki'); gr.state = 'idle'; Sfx.pick(); }
+    else if (gr.state === 'burnt') { gr.state = 'idle'; float(GRID.x + 20, GRID.y - 4, '탔다…', '#cfcfcf'); Sfx.put(); }
+  }
+}
+
+function dropItem() {
+  const c = run.cat;
+  if (!c.held.length) return;
+  const it = c.held.pop();
+  float(c.x, c.y - 26, `${ITEMS[it].name} 버림`, '#ddd');
+  Sfx.put();
+}
+
+function pay(cu) {
+  const sum = cu.want.reduce((a, k) => a + ITEMS[k].price, 0);
+  const ratio = clamp(cu.pat / cu.max, 0, 1);
+  const tip = Math.round(sum * 0.4 * ratio);
+  st.money += sum + tip; st.total += sum + tip;
+  run.stats.earned += sum + tip; run.stats.served++;
+  st.rep = clamp(st.rep + 0.05 + 0.08 * ratio, 0, 5);
+  float(cu.x, cu.y - 30, `+${sum + tip}냥`, '#ffd34d');
+  if (tip >= 3) float(cu.x, cu.y - 22, `팁 ${tip}`, '#ffffff');
+  cu.mood = 'happy';
+  Sfx.coin();
+  leave(cu);
+}
+
+function leave(cu) {
+  cu.state = 'leave';
+  cu.path = [{ x: 222, y: cu.y }, { x: 246, y: 156 }, { x: 344, y: rand(140, 172) }];
+}
+
+function spawnCustomer() {
+  const free = [0, 1, 2].filter(i => !run.customers.some(c => c.slot === i));
+  if (!free.length) return;
+  const slot = pick(free);
+  const avail = Object.keys(ITEMS).filter(k => st.unlocked[k] && (ITEMS[k].cooked || st.inv[k] > 0));
+  const want = [];
+  if (avail.length) {
+    const two = avail.length > 1 && Math.random() < Math.min(0.12 + st.day * 0.07, 0.5);
+    const pool = avail.slice();
+    for (let n = two ? 2 : 1; n > 0 && pool.length; n--) want.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  }
+  const base = pick(CRITTERS);
+  const max = (26 - Math.min(st.day, 10) * 0.8 + want.length * 4) * (st.up.chime ? 1.3 : 1);
+  const y0 = rand(142, 172);
+  run.customers.push({
+    type: base.type, fur: pick(base.fur), ear: '#7a4e2a', shirt: base.type === 'penguin' ? '#2b2f3a' : pick(SHIRTS),
+    glasses: Math.random() < 0.25, hat: base.type !== 'rabbit' && Math.random() < 0.25,
+    ring: base.type === 'penguin' ? Math.random() < 0.6 : Math.random() < 0.08,
+    x: 340, y: y0, slot, want, got: want.map(() => false), pat: max, max,
+    state: 'enter', path: [{ x: 246, y: 156 }, { x: 222, y: SLOTS[slot] }, { x: SLOT_X, y: SLOTS[slot] }],
+    speed: rand(30, 40), t: Math.random() * 10, walking: true, dinged: false, mood: null, wait2: 0,
+  });
+}
+
+function updateCustomers(dt) {
+  for (const cu of run.customers) {
+    cu.t += dt;
+    if (cu.path.length) {
+      const p = cu.path[0], dx = p.x - cu.x, dy = p.y - cu.y, d = Math.hypot(dx, dy), step = cu.speed * dt;
+      if (d <= step) { cu.x = p.x; cu.y = p.y; cu.path.shift(); }
+      else { cu.x += dx / d * step; cu.y += dy / d * step; }
+      cu.walking = true;
+    } else cu.walking = false;
+    if (!cu.dinged && cu.state === 'enter' && cu.x < 238) { cu.dinged = true; Sfx.door(); }
+    if (cu.state === 'enter' && !cu.path.length) cu.state = 'wait';
+    if (cu.state === 'wait') {
+      if (!cu.want.length) {
+        cu.wait2 += dt;
+        if (cu.wait2 > 1.6) {
+          float(cu.x, cu.y - 26, '살 게 없네…', '#dfe7ff');
+          st.rep = clamp(st.rep - 0.12, 0, 5); cu.mood = 'sad'; leave(cu);
+        }
+      } else {
+        cu.pat -= dt * (run.closing ? 1.6 : 1);
+        if (cu.pat <= 0) {
+          float(cu.x, cu.y - 28, '흥!', '#ff6b6b');
+          st.rep = clamp(st.rep - 0.3, 0, 5);
+          run.stats.angry++; cu.mood = 'angry'; Sfx.bad(); leave(cu);
+        }
+      }
+    }
+  }
+  run.customers = run.customers.filter(cu => !(cu.state === 'leave' && !cu.path.length));
+}
+
+function updateGull(dt) {
+  if (st.day >= 2 && !run.gull && hour() < 19.3) {
+    run.gullT -= dt;
+    if (run.gullT <= 0) {
+      const cands = SHELVES.filter(s => st.unlocked[s.item] && st.inv[s.item] > 0);
+      if (cands.length) {
+        run.gull = { x: 336, y: rand(4, 14), sh: pick(cands), state: 'in', t: 0, stole: null };
+        Sfx.gull(); toast('갈매기다! 진열대로 달려가서 쫓아내요!');
+      }
+      run.gullT = rand(22, 38) - Math.min(st.day, 8) * 1.2;
+    }
+  }
+  const gl = run.gull;
+  if (!gl) return;
+  gl.t += dt;
+  const c = run.cat, cx = gl.sh.x + SH_W / 2;
+  const fly = (tx, ty, sp) => {
+    const dx = tx - gl.x, dy = ty - gl.y, d = Math.hypot(dx, dy);
+    if (d < sp * dt) { gl.x = tx; gl.y = ty; return true; }
+    gl.x += dx / d * sp * dt; gl.y += dy / d * sp * dt; return false;
+  };
+  if (gl.state === 'in') {
+    if (fly(cx, SH_Y - 2, 80)) { gl.state = 'perch'; gl.t = 0; }
+  } else if (gl.state === 'perch') {
+    if (Math.abs(c.x - cx) < 16 && c.y < 100) {
+      gl.state = 'out'; float(gl.x, gl.y - 8, '꽥!', '#fff'); run.stats.shooed++; Sfx.gull();
+    } else if (gl.t > 5) {
+      const it = gl.sh.item;
+      if (st.inv[it] > 0) {
+        st.inv[it]--; gl.stole = it; run.stats.stolen++;
+        toast(`갈매기가 ${ITEMS[it].name}을(를) 훔쳐갔어요!`); Sfx.bad();
+      }
+      gl.state = 'out';
+    }
+  } else if (gl.state === 'out') {
+    if (fly(350, -20, 95)) run.gull = null;
+  }
+}
+
+function updateGrid(dt) {
+  if (!st.unlocked.taiyaki) return;
+  const gr = run.grid;
+  gr.t += dt;
+  if (gr.state === 'cooking' && gr.t >= 5) { gr.state = 'ready'; gr.t = 0; Sfx.ding(); }
+  else if (gr.state === 'ready' && gr.t >= 12) { gr.state = 'burnt'; gr.t = 0; Sfx.bad(); toast('붕어빵이 타버렸어요!'); }
+}
+
+function update(dt) {
+  T += dt;
+  const cr = run.crab;
+  cr.t += dt;
+  cr.x += cr.dir * 9 * dt * (Math.sin(cr.t * 1.3) > -0.3 ? 1 : 0);
+  if (cr.x > 300) cr.dir = -1; else if (cr.x < 246) cr.dir = 1;
+  for (const f of run.floats) f.t += dt;
+  run.floats = run.floats.filter(f => f.t < 1.3);
+  for (const t of run.toasts) t.t += dt;
+  run.toasts = run.toasts.filter(t => t.t < 3);
+
+  if (phase !== 'day') return;
+  run.t = Math.min(run.t + dt, DAY_LEN);
+  const h = hour();
+  if (h >= 19 && !run.warned) { run.warned = true; toast('곧 마감 시간이에요 (20:00)'); }
+  if (h >= 20) run.closing = true;
+
+  updateCat(dt);
+  if (!run.closing && h < 19.5) {
+    run.spawnT -= dt;
+    if (run.spawnT <= 0) {
+      spawnCustomer();
+      let iv = 10 - st.rep * 0.9 - Math.min(st.day, 8) * 0.35 - (st.up.sign ? 1.6 : 0);
+      if (h >= 12 && h < 13.5) iv *= 0.7;   // 점심 러시
+      run.spawnT = Math.max(2.8, iv) * rand(0.7, 1.3);
+    }
+  }
+  updateCustomers(dt);
+  updateGull(dt);
+  updateGrid(dt);
+  if (run.closing && !run.customers.length && !run.gull) endDay();
+}
+
+function endDay() {
+  phase = 'night';
+  const stats = { ...run.stats };
+  run.cat.held.length = 0;
+  run.grid.state = 'idle';
+  if (st.money < 10 && Object.values(st.inv).every(v => v === 0)) {
+    st.money += 40; stats.grant = 40;
+  }
+  st.night = true;
+  if (!st.won && st.rep >= 4.8 && st.total >= 1500) { st.won = true; stats.won = true; }
+  save();
+  showNight(stats);
+}
+
+/* ---------- rendering: helpers ---------- */
+function rect(x, y, w, h, c) { g.fillStyle = c; g.fillRect(x, y, w, h); }
+function shapes(list) {             // outlined pixel shapes: outlines first, fills second
+  for (const s of list) rect(s[0] - 1, s[1] - 1, s[2] + 2, s[3] + 2, K);
+  for (const s of list) rect(s[0], s[1], s[2], s[3], s[4]);
+}
+function hex2rgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function mix(a, b, t) {
+  const A = hex2rgb(a), B = hex2rgb(b);
+  return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], t))).join(',')})`;
+}
+function keyed(table, h) {          // table rows: [hour, colorA, colorB]
+  if (h <= table[0][0]) return [table[0][1], table[0][2]];
+  for (let i = 1; i < table.length; i++) {
+    if (h <= table[i][0]) {
+      const a = table[i - 1], b = table[i], t = (h - a[0]) / (b[0] - a[0]);
+      return [mix(a[1], b[1], t), mix(a[2], b[2], t)];
+    }
+  }
+  const l = table[table.length - 1]; return [l[1], l[2]];
+}
+const SKY = [[8, '#8fd6ff', '#dff6ff'], [12, '#6cc0ff', '#c8ecff'], [16, '#7fbfee', '#ffe3b0'],
+  [18, '#f39a6a', '#ffd08a'], [19, '#6d5a96', '#f2896b'], [20, '#1d2347', '#3c3a6b']];
+const SEA = [[8, '#3fa7d6', '#7fd1e8'], [16, '#3a9bcc', '#86cbe0'], [18, '#3f78a8', '#f0a98a'],
+  [19, '#2f4f80', '#8a6aa0'], [20, '#152a4f', '#26406b']];
+const HORIZON = 28, SHORE = 66;
+
+/* ---------- rendering: world ---------- */
+function drawOutside(h) {
+  const [s1, s2] = keyed(SKY, h);
+  const sg = g.createLinearGradient(0, 0, 0, HORIZON);
+  sg.addColorStop(0, s1); sg.addColorStop(1, s2);
+  g.fillStyle = sg; g.fillRect(0, 0, W, HORIZON);
+  // stars
+  if (h > 18.6) {
+    const a = clamp((h - 18.6) / 1.2, 0, 1);
+    for (const [x, y, p] of run.stars) {
+      if (Math.sin(T * 2 + p) > -0.4) rect(x | 0, y | 0, 1, 1, `rgba(255,255,230,${a})`);
+    }
+  }
+  // sun & moon
+  const p = clamp((h - 8) / 11.3, 0, 1);
+  const sx = 24 + p * 270, sy = HORIZON - 3 - Math.sin(p * Math.PI) * 22;
+  const sunC = h < 16.5 ? '#ffe66d' : mix('#ffe66d', '#ff7b39', clamp((h - 16.5) / 2.5, 0, 1));
+  g.save(); g.beginPath(); g.rect(0, 0, W, HORIZON); g.clip();
+  for (let dy = -5; dy <= 5; dy++) {
+    const half = Math.round(Math.sqrt(30 - dy * dy));
+    rect(Math.round(sx) - half, Math.round(sy) + dy, half * 2, 1, sunC);
+  }
+  if (h > 18.8) {
+    const mp = clamp((h - 18.8) / 1.2, 0, 1), mx = 70, my = Math.round(HORIZON - mp * 16);
+    for (let dy = -3; dy <= 3; dy++) {
+      const half = Math.round(Math.sqrt(12 - dy * dy));
+      rect(mx - half, my + dy, half * 2, 1, '#fff6c8');
+    }
+    rect(mx + 1, my - 2, 2, 3, mix('#1d2347', '#3c3a6b', .5));
+  }
+  g.restore();
+  // clouds
+  const cloudC = mix('#ffffff', '#ffb38a', clamp((h - 16.5) / 2.5, 0, 1));
+  for (let i = 0; i < 4; i++) {
+    const cx = ((i * 97 + T * (2 + i)) % (W + 60)) - 30, cy = 5 + (i * 7) % 14;
+    rect(cx, cy + 2, 20, 4, cloudC); rect(cx + 4, cy, 9, 3, cloudC); rect(cx + 12, cy + 1, 5, 2, cloudC);
+  }
+  // sea
+  const [c1, c2] = keyed(SEA, h);
+  const seaG = g.createLinearGradient(0, HORIZON, 0, SHORE);
+  seaG.addColorStop(0, c2); seaG.addColorStop(0.15, c1); seaG.addColorStop(1, c1);
+  g.fillStyle = seaG; g.fillRect(0, HORIZON, W, SHORE - HORIZON);
+  const waveC = h < 19 ? 'rgba(255,255,255,.55)' : 'rgba(200,210,255,.35)';
+  for (let y = HORIZON + 4, r = 0; y < SHORE; y += 5, r++) {
+    for (let x = -12; x < W; x += 16) {
+      const off = Math.round(Math.sin(T * 0.8 + r * 1.7 + x * 0.05) * 3 + (r % 2) * 8);
+      rect(x + off, y, 3 + (r >> 1), 1, waveC);
+    }
+  }
+  // sun glitter
+  if (h < 19.2) for (let i = 0; i < 6; i++) {
+    const gy = HORIZON + 2 + i * 4;
+    if (Math.sin(T * 4 + i * 2) > 0) rect(Math.round(sx) - 4 + ((i * 5) % 9), gy, 3, 1, 'rgba(255,240,180,.8)');
+  }
+  // sailboat
+  const bx = ((T * 3 + 120) % (W + 40)) - 20;
+  rect(bx, HORIZON + 2, 8, 2, '#ffffff'); rect(bx + 1, HORIZON + 4, 6, 1, '#c45c4a');
+  rect(bx + 3, HORIZON - 5, 1, 7, K); rect(bx + 4, HORIZON - 4, 3, 5, '#fff6e3');
+  // beach
+  rect(234, SHORE, W - 234, H - SHORE, '#f1dca0');
+  for (let i = 0; i < 40; i++) rect(236 + (i * 37) % 84, SHORE + 8 + (i * 53) % 108, 1, 1, '#d8bf7d');
+  for (let x = 234; x < W; x++) {
+    const fy = SHORE + Math.round(Math.sin(x * 0.13 + T * 1.6) * 1.5 + 1.5);
+    rect(x, SHORE - 1, 1, fy - SHORE + 2, c1);
+    rect(x, fy, 1, 1, '#ffffff'); rect(x, fy + 1, 1, 2, '#e2c98a');
+  }
+  drawBeachProps(h);
+}
+
+function drawBeachProps(h) {
+  // palm tree
+  for (let i = 0; i < 10; i++) rect(304 + Math.round(Math.sin(i * 0.35) * 3), 92 + i * 6, 5, 6, i % 2 ? '#8a5a34' : '#a06a3e');
+  shapes([[294, 86, 12, 3, '#3f9d5a'], [306, 86, 12, 3, '#3f9d5a'], [298, 82, 16, 4, '#53b56b'], [290, 90, 6, 3, '#3f9d5a'], [314, 90, 6, 3, '#3f9d5a']]);
+  rect(306, 90, 3, 3, '#7a4a20'); rect(310, 91, 3, 3, '#7a4a20');
+  // parasol + towel
+  rect(276, 100, 1, 34, K);
+  for (let r = 0; r < 6; r++) {
+    const half = 3 + r * 3;
+    for (let x = -half; x < half; x++) rect(276 + x, 94 + r, 1, 1, Math.floor((x + 30) / 5) % 2 ? '#ff6b6b' : '#fff6e3');
+  }
+  rect(259, 99, 36, 1, K);
+  shapes([[262, 138, 26, 10, '#4cc9f0']]);
+  rect(262, 141, 26, 2, '#ffffff'); rect(262, 145, 26, 1, '#ffffff');
+  // sandcastle
+  shapes([[300, 160, 12, 6, '#e2c27a'], [302, 156, 3, 4, '#e2c27a'], [307, 156, 3, 4, '#e2c27a']]);
+  rect(305, 162, 2, 4, K);
+  // OPEN sign
+  shapes([[248, 94, 22, 11, '#fff6e3']]);
+  rect(250, 106, 1, 8, K); rect(267, 106, 1, 8, K);
+  rect(250, 96, 18, 7, run.closing || h >= 20 ? '#ffd1d1' : '#d4f5dd');
+  // crab
+  const cr = run.crab, cx = Math.round(cr.x), cy = 170, leg = Math.floor(T * 8) % 2;
+  shapes([[cx - 3, cy - 3, 7, 3, '#e5533d']]);
+  rect(cx - 6, cy - 5 - leg, 2, 2, '#e5533d'); rect(cx + 5, cy - 5 - (1 - leg), 2, 2, '#e5533d');
+  rect(cx - 1, cy - 5, 1, 2, K); rect(cx + 1, cy - 5, 1, 2, K);
+  rect(cx - 4, cy, 1, 1, K); rect(cx + 4, cy, 1, 1, K); rect(cx - 2 + leg, cy, 1, 1, K); rect(cx + 2 - leg, cy, 1, 1, K);
+}
+
+const WINDOWS = [10, 82, 154];
+function drawStore(h, dark) {
+  // back wall with windows (outside shows through)
+  const wall = '#fbefd5';
+  rect(0, 0, 232, 4, wall);
+  rect(0, 4, 10, 30, wall); rect(70, 4, 12, 30, wall); rect(142, 4, 12, 30, wall); rect(214, 4, 18, 30, wall);
+  rect(0, 34, 232, SHORE - 34, wall);
+  for (const wx of WINDOWS) {
+    rect(wx - 2, 2, 64, 2, '#c98f5a'); rect(wx - 2, 34, 64, 3, '#c98f5a');
+    rect(wx - 2, 4, 2, 30, '#c98f5a'); rect(wx + 60, 4, 2, 30, '#c98f5a');
+    rect(wx + 29, 4, 2, 30, '#e6b07a');
+    rect(wx + 3, 7, 1, 4, 'rgba(255,255,255,.6)'); rect(wx + 5, 7, 1, 2, 'rgba(255,255,255,.6)');
+  }
+  // bunting
+  for (let x = 4; x < 228; x += 8) {
+    const c = ['#ff6b6b', '#ffd166', '#4cc9f0', '#06d6a0'][(x >> 3) % 4];
+    rect(x, 1, 5, 2, c); rect(x + 1, 3, 3, 1, c); rect(x + 2, 4, 1, 1, c);
+  }
+  // wainscot
+  rect(0, 52, 232, SHORE - 52, '#9fd8c4');
+  for (let x = 0; x < 232; x += 6) rect(x, 52, 1, SHORE - 52, '#86c7b1');
+  rect(0, 51, 232, 1, '#6fae99');
+  // floor
+  for (let y = SHORE; y < H; y += 8) for (let x = 0; x < 232; x += 8) {
+    rect(x, y, 8, 8, ((x + y) >> 3) % 2 ? '#f6efe0' : '#e3eee6');
+  }
+  rect(0, SHORE, 232, 1, '#c9b89a');
+  // right wall + door
+  rect(231, 0, 5, 118, '#e9d6b0'); rect(231, 0, 1, 118, '#c9b089');
+  rect(229, 116, 9, 3, '#c98f5a'); rect(229, 174, 9, 3, '#c98f5a');
+  rect(232, 119, 3, 55, 'rgba(190,230,245,.35)');
+  // doormat
+  rect(212, 140, 18, 30, '#d96c4a'); for (let y = 142; y < 168; y += 4) rect(214, y, 14, 1, '#f08a65');
+  // warm interior tint at night
+  if (dark > 0) { g.fillStyle = `rgba(255,170,80,${dark * 0.12})`; g.fillRect(0, 0, 232, H); }
+  // lamps
+  for (const lx of [40, 116, 192]) {
+    rect(lx, 0, 1, 5, K);
+    shapes([[lx - 3, 5, 7, 3, '#ffd166']]);
+    if (dark > 0.05) {
+      const gr = g.createRadialGradient(lx, 10, 1, lx, 10, 46);
+      gr.addColorStop(0, `rgba(255,220,140,${dark * 0.5})`); gr.addColorStop(1, 'rgba(255,220,140,0)');
+      g.fillStyle = gr; g.fillRect(lx - 46, 0, 92, 60);
+    }
+  }
+  // wall poster
+  shapes([[217, 12, 11, 15, '#fff6e3']]);
+  g.drawImage(CAT, 218, 13, 9, 11);
+}
+
+function drawShelf(sh, highlight) {
+  const x = sh.x, y = SH_Y, unlocked = st.unlocked[sh.item];
+  if (sh.kind === 'shelf') {
+    shapes([[x, y, SH_W, SH_H, '#c98f5a']]);
+    rect(x + 2, y + 2, SH_W - 4, SH_H - 4, '#8a5a34');
+    for (const ty of [11, 22, 33]) rect(x + 1, y + ty, SH_W - 2, 2, '#e6b07a');
+  } else {
+    shapes([[x, y, SH_W, SH_H, '#e8eef2']]);
+    rect(x + 1, y + 1, SH_W - 2, 3, sh.band);
+    rect(x + 2, y + 5, SH_W - 4, SH_H - 7, '#c4ecf7');
+    for (const ty of [15, 25]) rect(x + 2, y + ty, SH_W - 4, 1, '#9cc9d6');
+    rect(x + SH_W - 4, y + 12, 1, 8, '#9aa3a9');
+  }
+  if (unlocked) {
+    const n = Math.min(st.inv[sh.item], 6);
+    const tiers = sh.kind === 'shelf' ? [y + 3, y + 14, y + 25] : [y + 6, y + 16, y + 26];
+    for (let i = 0; i < n; i++) g.drawImage(ICON[sh.item], x + 3 + (i % 2) * 12, tiers[Math.floor(i / 2)]);
+    if (sh.kind !== 'shelf') {
+      g.fillStyle = 'rgba(255,255,255,.35)';
+      for (let i = 0; i < 3; i++) g.fillRect(x + 4 + i * 2, y + 6 + i * 6, 1, 6);
+    }
+  } else {
+    rect(x + 1, y + 3, SH_W - 2, SH_H - 4, '#e3d3b6');
+    for (let i = 0; i < 4; i++) rect(x + 3 + i * 6, y + 3, 1, SH_H - 4, '#cdbb98');
+    rect(x + 1, y + 2, SH_W - 2, 2, '#b89d70');
+  }
+  if (highlight) outline(x - 2, y - 2, SH_W + 4, SH_H + 4);
+}
+
+function outline(x, y, w, h) {
+  if (Math.floor(T * 4) % 2) return;
+  g.strokeStyle = '#fff'; g.lineWidth = 1;
+  g.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+}
+
+function drawCounter() {
+  shapes([[178, 82, 12, 90, '#e6b07a']]);
+  rect(178, 172, 12, 4, '#a06a3e'); rect(177, 172, 14, 1, K);
+  rect(179, 83, 1, 88, '#f3c995');
+  // register
+  shapes([[179, 86, 10, 8, '#9aa3a9']]);
+  rect(180, 87, 8, 3, '#3a6b4f'); rect(181, 88, 3, 1, '#9cf0b0');
+  rect(180, 91, 8, 2, '#c5ccd1');
+  // lucky cat
+  shapes([[181, 160, 7, 8, '#fffdf5']]);
+  rect(182, 158, 1, 2, K); rect(186, 158, 1, 2, K);
+  rect(182, 162, 1, 1, K); rect(185, 162, 1, 1, K); rect(181, 165, 7, 1, '#e63946');
+  rect(188, 159 - (Math.floor(T * 3) % 2), 2, 3, '#fffdf5');
+  // snack baskets on counter
+  shapes([[180, 120, 8, 5, '#c98f5a']]);
+  rect(181, 119, 2, 2, '#ff6b6b'); rect(184, 118, 2, 3, '#ffd166');
+}
+
+function drawGrid(highlight) {
+  if (!st.unlocked.taiyaki) {
+    shapes([[24, 148, 8, 8, '#c45c4a']]);           // a potted plant instead
+    shapes([[22, 140, 12, 7, '#53b56b'], [25, 136, 6, 5, '#3f9d5a']]);
+    return;
+  }
+  const { x, y, w, h } = GRID, gr = run.grid;
+  shapes([[x, y, w, h - 6, '#cfd6db']]);
+  rect(x, y + h - 6, w, 6, '#9aa3a9'); rect(x - 1, y + h, w + 2, 1, K);
+  shapes([[x + 4, y + 2, w - 8, h - 11, '#4a4a52']]);
+  const cookC = gr.state === 'cooking' ? mix('#6b5a4a', '#d99a45', clamp(gr.t / 5, 0, 1))
+    : gr.state === 'ready' ? '#d99a45' : gr.state === 'burnt' ? '#2a2020' : '#5e5e68';
+  for (let i = 0; i < 2; i++) {
+    const fx = x + 7 + i * 14, fy = y + 4;
+    rect(fx, fy, 10, 5, cookC); rect(fx + 10, fy + 1, 2, 3, cookC);
+  }
+  if (gr.state === 'cooking' || gr.state === 'burnt') {
+    const smoke = gr.state === 'burnt' ? 'rgba(80,80,80,.7)' : 'rgba(255,255,255,.6)';
+    for (let i = 0; i < 3; i++) {
+      const ph = (T * 1.2 + i * 0.33) % 1;
+      rect(x + 10 + i * 9 + Math.round(Math.sin(T * 3 + i) * 1.5), y - 2 - ph * 12, 2, 2, smoke);
+    }
+  }
+  if (gr.state === 'cooking') {
+    rect(x + 4, y - 6, w - 8, 3, K); rect(x + 5, y - 5, (w - 10) * clamp(gr.t / 5, 0, 1), 1, '#ffd166');
+  }
+  if (gr.state === 'ready' && Math.floor(T * 3) % 2) rect(x + w / 2 - 1, y - 7, 2, 4, '#ffd34d');
+  if (highlight) outline(x - 3, y - 3, w + 6, h + 6);
+}
+
+function drawCat() {
+  const c = run.cat, bob = c.moving ? Math.floor(c.anim * 10) % 2 : 0;
+  const x = Math.round(c.x) - 6, y = Math.round(c.y) - 16 - bob;
+  const side = c.face > 0 ? -1 : 1, wag = Math.round(Math.sin(T * 5) * 1.5);
+  const bx = side > 0 ? x + 11 : x;
+  const pts = [[bx, y + 12], [bx + side, y + 10], [bx + side * 2, y + 8], [bx + side * 2 + wag, y + 6]];
+  for (const [px, py] of pts) rect(px - 1, py - 1, 4, 4, K);
+  for (const [px, py] of pts) rect(px, py, 2, 2, '#f4a25b');
+  rect(pts[3][0], pts[3][1], 2, 1, '#c96f2e');
+  g.drawImage(CAT, x, y);
+  // a little shopkeeper cap
+  rect(x + 3, y + 1, 7, 2, '#4fa874'); rect(x + 3, y + 1, 7, 1, '#2f7a50');
+  c.held.forEach((it, i) => {
+    const ox = x + 2 + (i - (c.held.length - 1) / 2) * 10;
+    g.drawImage(ICON[it], Math.round(ox), y - 10 + (Math.floor(T * 3) % 2));
+  });
+}
+
+function drawCritter(cu) {
+  const bob = cu.walking ? Math.floor(cu.t * 8) % 2 : 0;
+  const x = Math.round(cu.x) - 6, y = Math.round(cu.y) - 16 - bob;
+  const pre = [], post = [];
+  const fur = cu.fur, legOff = cu.walking ? Math.floor(cu.t * 8) % 2 : 0;
+  if (cu.type === 'cat') pre.push([x + 1, y - 1, 3, 2, fur], [x + 8, y - 1, 3, 2, fur]);
+  if (cu.type === 'rabbit') pre.push([x + 2, y - 6, 2, 7, fur], [x + 8, y - 6, 2, 7, fur]);
+  if (cu.type === 'bear') pre.push([x, y - 1, 3, 3, fur], [x + 9, y - 1, 3, 3, fur]);
+  if (cu.type === 'otter') pre.push([x + 1, y, 2, 2, fur], [x + 9, y, 2, 2, fur]);
+  const feet = cu.type === 'penguin' ? '#ffa62b' : fur;
+  shapes([...pre,
+    [x + 3, y + 14 - legOff, 2, 2, feet], [x + 7, y + 14 - (1 - legOff), 2, 2, feet],
+    [x + 1, y + 1, 10, 8, fur], [x + 2, y + 9, 8, 5, cu.shirt],
+    [x + 1, y + 10, 1, 3, fur], [x + 10, y + 10, 1, 3, fur]]);
+  if (cu.type === 'dog') post.push([x, y + 2, 2, 5, cu.ear], [x + 10, y + 2, 2, 5, cu.ear]);
+  if (post.length) shapes(post);
+  // faces
+  if (cu.type === 'penguin') {
+    rect(x + 3, y + 3, 6, 5, '#ffffff'); rect(x + 4, y + 10, 4, 4, '#ffffff');
+  }
+  if (cu.type === 'cat') { rect(x + 2, y, 1, 1, '#f29bb0'); rect(x + 9, y, 1, 1, '#f29bb0'); }
+  if (cu.type === 'rabbit') { rect(x + 2, y - 5, 1, 5, '#f7b6c8'); rect(x + 9, y - 5, 1, 5, '#f7b6c8'); }
+  if (cu.type === 'dog' || cu.type === 'bear' || cu.type === 'otter') rect(x + 4, y + 5, 4, 3, '#f3dcb8');
+  rect(x + 3, y + 4, 1, 2, K); rect(x + 8, y + 4, 1, 2, K);
+  if (cu.type === 'penguin') rect(x + 5, y + 6, 2, 1, '#ffa62b');
+  else rect(x + 5, y + 5, 2, 1, K);
+  rect(x + 2, y + 7, 1, 1, '#f29bb0'); rect(x + 9, y + 7, 1, 1, '#f29bb0');
+  if (cu.glasses) {
+    rect(x + 2, y + 4, 3, 2, K); rect(x + 7, y + 4, 3, 2, K); rect(x + 5, y + 4, 2, 1, K);
+    rect(x + 2, y + 4, 1, 1, '#7fb8e6'); rect(x + 7, y + 4, 1, 1, '#7fb8e6');
+  }
+  if (cu.ring) {
+    shapes([[x + 1, y + 11, 10, 3, '#ff6b6b']]);
+    rect(x + 3, y + 11, 2, 3, '#fff'); rect(x + 8, y + 11, 2, 3, '#fff');
+  }
+  if (cu.hat) {
+    shapes([[x - 1, y, 14, 1, '#e9c46a'], [x + 2, y - 3, 8, 3, '#e9c46a']]);
+    rect(x + 2, y - 1, 8, 1, '#e76f51');
+  }
+  if (cu.state === 'leave' && cu.mood === 'happy' && Math.floor(cu.t * 3) % 2) {
+    rect(x + 4, y - 7, 2, 2, '#ff6b9a'); rect(x + 7, y - 7, 2, 2, '#ff6b9a'); rect(x + 5, y - 5, 3, 2, '#ff6b9a'); rect(x + 6, y - 3, 1, 1, '#ff6b9a');
+  }
+  if (cu.state === 'leave' && cu.mood === 'angry') {
+    rect(x + 9, y - 6, 1, 4, '#e63946'); rect(x + 7, y - 4, 5, 1, '#e63946');
+  }
+}
+
+function drawBubble(cu, highlight) {
+  const n = Math.max(cu.want.length, 1), w = 4 + n * 10, bx = Math.round(cu.x - w / 2), by = Math.round(cu.y) - 36;
+  shapes([[bx, by, w, 12, '#ffffff']]);
+  rect(Math.round(cu.x) - 1, by + 12, 3, 1, '#ffffff'); rect(Math.round(cu.x), by + 13, 1, 1, '#ffffff');
+  rect(Math.round(cu.x) - 2, by + 12, 1, 1, K); rect(Math.round(cu.x) + 2, by + 12, 1, 1, K); rect(Math.round(cu.x) - 1, by + 13, 1, 1, K); rect(Math.round(cu.x) + 1, by + 13, 1, 1, K);
+  if (!cu.want.length) {
+    for (let i = 0; i < 3; i++) rect(bx + 3 + i * 3, by + 6, 1, 1, K);
+  } else {
+    cu.want.forEach((it, i) => {
+      g.drawImage(ICON[it], bx + 3 + i * 10, by + 2);
+      if (cu.got[i]) {
+        g.fillStyle = 'rgba(255,255,255,.6)'; g.fillRect(bx + 3 + i * 10, by + 2, 8, 8);
+        rect(bx + 4 + i * 10, by + 6, 2, 2, '#2fa35a'); rect(bx + 6 + i * 10, by + 4, 2, 3, '#2fa35a'); rect(bx + 8 + i * 10, by + 3, 1, 2, '#2fa35a');
+      }
+    });
+    const r = clamp(cu.pat / cu.max, 0, 1);
+    rect(bx, by - 4, w, 3, K);
+    rect(bx + 1, by - 3, Math.max(0, Math.round((w - 2) * r)), 1, r > 0.5 ? '#3ccf6e' : r > 0.25 ? '#ffd166' : '#ff5b5b');
+  }
+  if (highlight) outline(bx - 3, by - 6, w + 6, 22);
+}
+
+function drawGull(gl) {
+  const x = Math.round(gl.x), y = Math.round(gl.y), flap = gl.state === 'perch' ? 0 : Math.floor(T * 10) % 2;
+  shapes([[x - 4, y - 2, 8, 3, '#ffffff'], [x + 2, y - 5, 3, 3, '#ffffff'], [x - 6, y - 1, 2, 1, '#b8c4cc'],
+    flap ? [x - 2, y - 6, 5, 2, '#b8c4cc'] : [x - 2, y + 1, 5, 2, '#b8c4cc']]);
+  rect(x + 5, y - 4, 2, 1, '#ffa62b'); rect(x + 3, y - 4, 1, 1, K);
+  if (gl.state === 'perch') { rect(x, y + 2, 1, 2, '#ffa62b'); rect(x + 2, y + 2, 1, 2, '#ffa62b'); }
+  if (gl.stole) g.drawImage(ICON[gl.stole], x - 3, y + 2);
+  if (gl.state === 'perch') {
+    if (Math.floor(T * 5) % 2) { rect(x, y - 13, 2, 4, '#ff3b3b'); rect(x, y - 8, 2, 1, '#ff3b3b'); }
+    rect(x - 6, y - 16, 14, 3, K); rect(x - 5, y - 15, Math.round(12 * (1 - clamp(gl.t / 5, 0, 1))), 1, '#ff8a3d');
+  }
+}
+
+function drawWorld() {
+  const h = phase === 'title' ? 17.6 : hour();
+  const dark = h < 17.5 ? 0 : clamp((h - 17.5) / 2.5, 0, 1);
+  drawOutside(h);
+  if (dark > 0) { g.fillStyle = `rgba(14,18,46,${dark * 0.5})`; g.fillRect(0, 0, W, H); }
+  drawStore(h, dark);
+
+  const tg = phase === 'day' ? findTarget() : null;
+  for (const sh of SHELVES) drawShelf(sh, tg && tg.type === 'shelf' && tg.sh === sh);
+  drawGrid(tg && tg.type === 'grid');
+  drawCounter();
+
+  const ents = [{ y: run.cat.y, draw: drawCat }];
+  if (phase !== 'title') for (const cu of run.customers) ents.push({ y: cu.y, draw: () => drawCritter(cu) });
+  ents.sort((a, b) => a.y - b.y).forEach(e => e.draw());
+  for (const cu of run.customers) if (cu.state === 'wait') drawBubble(cu, tg && tg.type === 'cust' && tg.cu === cu);
+  if (run.gull) drawGull(run.gull);
+  return { h, tg };
+}
+
+/* ---------- rendering: display layer (text & HUD) ---------- */
+function text(s, x, y, { size = 16, color = '#3b2a2a', align = 'left', stroke = null } = {}) {
+  ctx.font = `${size}px ${FONT}`;
+  ctx.textAlign = align; ctx.textBaseline = 'middle';
+  if (stroke) { ctx.lineWidth = 5; ctx.strokeStyle = stroke; ctx.lineJoin = 'round'; ctx.strokeText(s, x, y); }
+  ctx.fillStyle = color; ctx.fillText(s, x, y);
+}
+function box(x, y, w, h, fill = '#fff6e3') {
+  ctx.fillStyle = K; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = fill; ctx.fillRect(x + 3, y + 3, w - 6, h - 6);
+}
+const fmtTime = h => { const hh = Math.floor(h), mm = Math.floor((h - hh) * 6) * 10; return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`; };
+
+function drawHUD(h, tg) {
+  // shelf tags
+  for (const sh of SHELVES) {
+    const cx = (sh.x + SH_W / 2) * S, it = sh.item, un = st.unlocked[it];
+    const label = un ? `${ITEMS[it].name}` : '준비중';
+    text(label, cx, (SH_Y + SH_H) * S + 13, { size: 13, color: un ? '#3b2a2a' : '#8a7b6b', align: 'center', stroke: '#fff6e3' });
+    if (un) {
+      const v = st.inv[it];
+      text(`×${v}  ${ITEMS[it].price}냥`, cx, (SH_Y + SH_H) * S + 29, { size: 12, color: v ? '#5b4a3a' : '#e63946', align: 'center', stroke: '#fff6e3' });
+    }
+  }
+  text(run.closing || h >= 20 ? 'CLOSED' : 'OPEN', 259 * S, 99.5 * S, { size: 14, color: run.closing || h >= 20 ? '#c0392b' : '#1e8449', align: 'center' });
+  text('바다냥', 222.5 * S, 30.5 * S, { size: 11, color: '#3b2a2a', align: 'center', stroke: '#fbefd5' });
+  if (phase === 'title') return;
+
+  // top bar
+  box(12, 10, 236, 44);
+  text(`${st.day}일차`, 28, 33, { size: 20 });
+  const sun = h < 18.8;
+  ctx.fillStyle = sun ? '#ffb703' : '#cdd6ff';
+  ctx.beginPath(); ctx.arc(128, 32, 8, 0, Math.PI * 2); ctx.fill();
+  if (!sun) { ctx.fillStyle = '#fff6e3'; ctx.beginPath(); ctx.arc(132, 29, 7, 0, Math.PI * 2); ctx.fill(); }
+  text(fmtTime(h), 146, 33, { size: 20 });
+
+  box(258, 10, 172, 44);
+  ctx.imageSmoothingEnabled = false;
+  const r = Math.round(st.rep * 2) / 2;
+  for (let i = 0; i < 5; i++) {
+    const sx = 272 + i * 30, sy = 18;
+    ctx.drawImage(STAR_OFF, sx, sy, 28, 28);
+    if (r >= i + 1) ctx.drawImage(STAR_ON, sx, sy, 28, 28);
+    else if (r >= i + 0.5) ctx.drawImage(STAR_ON, 0, 0, 4, 7, sx, sy, 16, 28);
+  }
+
+  box(440, 10, 170, 44);
+  ctx.drawImage(COIN, 454, 18, 28, 28);
+  text(`${st.money}냥`, 492, 33, { size: 20 });
+
+  // held items
+  box(12, H * S - 62, 166, 50);
+  text('손', 30, H * S - 37, { size: 16, color: '#8a7b6b' });
+  for (let i = 0; i < capacity(); i++) {
+    const bx = 52 + i * 58, by = H * S - 54;
+    ctx.fillStyle = '#e8dcc4'; ctx.fillRect(bx, by, 34, 34);
+    const it = run.cat.held[i];
+    if (it) ctx.drawImage(ICON[it], bx + 1, by + 1, 32, 32);
+  }
+
+  // hint
+  const hint = hintFor(tg);
+  if (hint) {
+    ctx.font = `17px ${FONT}`;
+    const w = ctx.measureText(hint).width + 36;
+    box(W * S / 2 - w / 2 - 60, H * S - 58, w, 42, '#3b2a2a');
+    text(hint, W * S / 2 - 60, H * S - 37, { size: 17, color: '#fff6e3', align: 'center' });
+  }
+  text('방향키 이동 · Space 행동 · Q 버리기 · P 일시정지 · M 소리', W * S - 14, H * S - 12,
+    { size: 12, color: '#fff6e3', align: 'right', stroke: 'rgba(59,42,42,.8)' });
+
+  // floats
+  for (const f of run.floats) {
+    const a = 1 - f.t / 1.3;
+    ctx.globalAlpha = clamp(a * 1.5, 0, 1);
+    text(f.text, f.x * S, (f.y - f.t * 12) * S, { size: 18, color: f.color, align: 'center', stroke: K });
+    ctx.globalAlpha = 1;
+  }
+  // toasts
+  run.toasts.forEach((t, i) => {
+    const a = clamp(Math.min(t.t * 6, (3 - t.t) * 3), 0, 1);
+    ctx.globalAlpha = a;
+    ctx.font = `17px ${FONT}`;
+    const w = ctx.measureText(t.text).width + 34, y = 72 + i * 42;
+    box(W * S / 2 - w / 2, y, w, 36, '#fff6e3');
+    text(t.text, W * S / 2, y + 18, { size: 17, align: 'center' });
+    ctx.globalAlpha = 1;
+  });
+}
+
+/* ---------- menus ---------- */
+function iconURL(k) {
+  const c = document.createElement('canvas'); c.width = 32; c.height = 32;
+  const x = c.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(ICON[k], 0, 0, 32, 32);
+  return c.toDataURL();
+}
+const ICON_URL = Object.fromEntries(Object.keys(ICON).map(k => [k, iconURL(k)]));
+
+function showTitle() {
+  phase = 'title';
+  const sv = loadSave();
+  overlay.hidden = false;
+  overlay.innerHTML = `
+    <div class="panel" role="dialog" aria-label="타이틀">
+      <h1>바다냥 편의점</h1>
+      <p class="sub">파도 소리가 들리는 해변 마을. 고양이 점장이 작은 편의점을 꾸려가요.
+        손님이 원하는 물건을 진열대에서 집어 계산대로 가져다주고, 밤에는 번 돈으로 재고를 채우고 가게를 키워요.</p>
+      <div class="keys">
+        <span><kbd>←↑↓→</kbd> <kbd>WASD</kbd></span><span>점장 이동</span>
+        <span><kbd>Space</kbd> <kbd>E</kbd></span><span>물건 집기 · 손님에게 건네기 · 붕어빵 굽기</span>
+        <span><kbd>Q</kbd></span><span>들고 있는 물건 버리기</span>
+        <span><kbd>P</kbd> <kbd>M</kbd></span><span>일시정지 · 소리 켜고 끄기</span>
+      </div>
+      <p class="sub">목표: 별점 4.8 이상, 누적 매출 1500냥으로 바닷가 최고의 편의점 되기</p>
+      <div class="btns">
+        <button id="b-new">새 가게 열기</button>
+        ${sv ? `<button id="b-cont" class="alt">이어하기 (${sv.day}일차${sv.night ? ' 밤' : ''})</button>` : ''}
+      </div>
+    </div>`;
+  document.getElementById('b-new').onclick = () => { Sfx.init(); st = freshState(); save(); startDay(); };
+  const bc = document.getElementById('b-cont');
+  if (bc) bc.onclick = () => {
+    Sfx.init();
+    st = Object.assign(freshState(), sv);
+    st.inv = Object.assign(freshState().inv, sv.inv);
+    if (st.night) { phase = 'night'; showNight(null); } else startDay();
+  };
+  document.getElementById('b-new').focus();
+}
+
+function pause() {
+  phase = 'paused';
+  overlay.hidden = false;
+  overlay.innerHTML = `
+    <div class="panel" role="dialog" aria-label="일시정지" style="width:min(92%,420px)">
+      <h2>잠깐 쉬는 중</h2>
+      <p class="sub">점장이 그루밍 중이에요. 손님도 기다려 줄 거예요.</p>
+      <div class="btns"><button id="b-res">계속하기</button><button id="b-title" class="ghost">타이틀로</button></div>
+    </div>`;
+  document.getElementById('b-res').onclick = resume;
+  document.getElementById('b-title').onclick = () => { run = newRun(); showTitle(); };
+  document.getElementById('b-res').focus();
+}
+function resume() { phase = 'day'; overlay.hidden = true; overlay.innerHTML = ''; cv.focus?.(); }
+
+function showNight(stats) {
+  phase = 'night';
+  overlay.hidden = false;
+  const render = () => {
+    const stockKeys = Object.keys(ITEMS).filter(k => st.unlocked[k] && !ITEMS[k].cooked);
+    const lockKeys = Object.keys(ITEMS).filter(k => !st.unlocked[k]);
+    const row = k => {
+      const it = ITEMS[k], v = st.inv[k];
+      const b = n => {
+        const qty = Math.min(n, STOCK_CAP - v), cost = qty * it.cost;
+        return `<button data-act="buy" data-k="${k}" data-n="${n}" ${qty <= 0 || cost > st.money ? 'disabled' : ''}>+${n} · ${it.cost * n}냥</button>`;
+      };
+      return `<div class="row"><img src="${ICON_URL[k]}" alt=""><div class="nm">${it.name}<small>재고 ${v}/${STOCK_CAP} · 원가 ${it.cost} · 판매 ${it.price}냥</small></div>${b(1)}${b(5)}</div>`;
+    };
+    const lockRow = k => {
+      const it = ITEMS[k];
+      const note = it.cooked ? '붕어빵 틀을 들여요. 재고 없이 직접 구워 팔아요' : `판매가 ${it.price}냥 · 재고 5개 포함`;
+      return `<div class="row"><img src="${ICON_URL[k]}" alt=""><div class="nm">${it.name}<small>${note}</small></div>
+        <button data-act="unlock" data-k="${k}" class="alt" ${st.money < it.unlock ? 'disabled' : ''}>${it.unlock}냥</button></div>`;
+    };
+    const upRow = k => {
+      const u = UPGRADES[k], own = st.up[k];
+      return `<div class="row ${own ? 'owned' : ''}"><div class="nm">${u.name}<small>${u.desc}</small></div>
+        <button data-act="up" data-k="${k}" class="alt" ${own || st.money < u.cost ? 'disabled' : ''}>${own ? '보유 중' : u.cost + '냥'}</button></div>`;
+    };
+    overlay.innerHTML = `
+      <div class="panel" role="dialog" aria-label="밤 정산">
+        <div class="head"><h2>${st.day}일차 마감 · 밤의 정산</h2><div class="money">${st.money}냥</div></div>
+        ${stats && stats.won ? '<div class="banner">축하해요! 바다냥 편의점이 바닷가 최고의 편의점이 되었어요. 계속 영업할 수 있어요.</div>' : ''}
+        ${stats && stats.grant ? `<div class="banner">어촌계에서 응원금 ${stats.grant}냥을 보내왔어요.</div>` : ''}
+        ${stats ? `<div class="stats">
+          <div><b>${stats.served}</b>계산한 손님</div>
+          <div><b>${stats.angry}</b>화난 손님</div>
+          <div><b>+${stats.earned}</b>오늘 매출(냥)</div>
+          <div><b>${stats.shooed}/${stats.shooed + stats.stolen}</b>쫓아낸 갈매기</div>
+          <div><b>${st.rep.toFixed(1)}</b>별점</div>
+        </div>` : ''}
+        <h3>재고 주문</h3>
+        <div class="rows">${stockKeys.map(row).join('')}</div>
+        ${lockKeys.length ? `<h3>새 상품 들이기</h3><div class="rows">${lockKeys.map(lockRow).join('')}</div>` : ''}
+        <h3>가게 꾸미기</h3>
+        <div class="rows">${Object.keys(UPGRADES).map(upRow).join('')}</div>
+        <button id="b-next" class="big">${st.day + 1}일차 문 열기</button>
+      </div>`;
+    document.getElementById('b-next').onclick = () => { st.day++; st.night = false; save(); startDay(); };
+  };
+  overlay.onclick = e => {
+    const b = e.target.closest('button[data-act]');
+    if (!b || b.disabled || phase !== 'night') return;
+    const k = b.dataset.k, act = b.dataset.act;
+    if (act === 'buy') {
+      const qty = Math.min(+b.dataset.n, STOCK_CAP - st.inv[k]), cost = qty * ITEMS[k].cost;
+      if (qty > 0 && cost <= st.money) { st.money -= cost; st.inv[k] += qty; Sfx.coin(); }
+    } else if (act === 'unlock') {
+      const it = ITEMS[k];
+      if (st.money >= it.unlock) { st.money -= it.unlock; st.unlocked[k] = true; if (!it.cooked) st.inv[k] += 5; Sfx.ding(); }
+    } else if (act === 'up') {
+      const u = UPGRADES[k];
+      if (!st.up[k] && st.money >= u.cost) { st.money -= u.cost; st.up[k] = true; Sfx.ding(); }
+    }
+    save();
+    const scroll = overlay.querySelector('.panel')?.scrollTop || 0;
+    render();
+    const p = overlay.querySelector('.panel'); if (p) p.scrollTop = scroll;
+  };
+  render();
+}
+
+/* ---------- main loop ---------- */
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  update(phase === 'paused' ? 0 : dt);
+  const { h, tg } = drawWorld();
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(wc, 0, 0, W * S, H * S);
+  drawHUD(h, tg);
+  requestAnimationFrame(frame);
+}
+showTitle();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

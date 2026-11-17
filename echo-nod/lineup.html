@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ECHO NOD — 캐릭터 라인업</title>
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+<style>
+  html,body{margin:0;height:100%;background:linear-gradient(#dfe9f6,#fbf3e2 55%,#fbefd9);font-family:sans-serif}
+  #wrap{position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center;gap:1vw;padding:0 2vw 12vh;box-sizing:border-box}
+  .slot{position:relative;width:15vw;height:52vh;cursor:pointer}
+  .slot::after{content:"";position:absolute;left:12%;right:12%;bottom:1%;height:6%;border-radius:50%;background:radial-gradient(closest-side,rgba(120,100,70,.22),transparent)}
+  .stage-canvas{position:absolute;inset:0;pointer-events:none;z-index:2}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div class="slot" data-c="yellow"></div><div class="slot" data-c="purple"></div><div class="slot" data-c="green"></div>
+  <div class="slot" data-c="cream"></div><div class="slot" data-c="blue"></div><div class="slot" data-c="coral"></div>
+</div>
+<script type="module">
+  import { Stage } from './js/stage.js';
+  const stage = new Stage(document.getElementById('wrap'));
+  const gestures = ['nod', 'shake', 'hop', 'wiggle'];
+  const only = new URLSearchParams(location.search).get('only');
+  if (only) document.querySelectorAll('.slot').forEach(s => { if (s.dataset.c !== only) s.remove(); else s.style.width = '40vw', s.style.height = '86vh'; });
+  document.querySelectorAll('.slot').forEach(s => {
+    const a = stage.add(s, s.dataset.c, { shells: 22, fill: 0.92 });
+    let i = 0;
+    s.onclick = () => a && a.play(gestures[i++ % gestures.length]);
+  });
+  window.__stage = stage;
+</script>
+</body>
+</html>

@@ -217,7 +217,7 @@ input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0;wid
 .orbit{position:absolute;inset:0;transform:rotate(var(--rot,0deg))}
 .orbit svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .orbit .ring{fill:none;stroke:var(--ink);stroke-width:.18;opacity:.35;stroke-dasharray:.6 1.4}
-.orbit .lnk{stroke:var(--ink);fill:none;stroke-linecap:round;stroke-dasharray:1 2.5;animation:flow2 3s linear infinite}
+.orbit .lnk{fill:none;stroke-linecap:round;stroke-dasharray:1 2.5;animation:flow2 3s linear infinite}
 @keyframes flow2{to{stroke-dashoffset:-14}}
 @keyframes orbit{to{transform:rotate(360deg)}}
 .node{position:absolute;width:23%;transform:translate(-50%,-50%);cursor:pointer}
@@ -243,6 +243,23 @@ input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0;wid
 .stats b{display:block;font-size:24px;font-weight:300;letter-spacing:-.03em}
 .stats span{font-size:11px;color:var(--ink-2)}
 .reset{display:block;margin:34px auto 0}
+.tdots{display:inline-flex;vertical-align:middle;padding-left:3px}
+.tdots i{width:10px;height:10px;border-radius:50%;margin-left:-3px;border:1.5px solid var(--bg);display:inline-block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin:14px 0 4px}
+.legend span{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-2)}
+.legend span.me{color:var(--ink);font-weight:500}
+.legend i{width:10px;height:10px;border-radius:50%;box-shadow:0 0 8px 1px currentColor}
+.stat{max-width:128px}
+.stat span{display:block;margin-top:6px}
+.stat em{display:block;font-style:normal;font-size:12px;font-weight:500;line-height:1.35;margin-top:2px;word-break:keep-all}
+.cs-taste{top:16px;left:0}
+.pl-taste{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:10px;color:var(--ink)}
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pair{border-radius:18px;padding:12px 12px 14px;display:flex;flex-direction:column;gap:3px;cursor:pointer;min-width:0;box-shadow:none}
+.pair .pb{width:66%;margin:0 auto 6px}
+.pair b{font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px}
+.pair p{font-size:11px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick button.on{border-color:var(--mc)!important;box-shadow:0 0 18px -4px var(--mc)}
 
 /* ---------- tab bar ---------- */
 .tabbar{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:8px;border-radius:999px;z-index:40;animation:tabin 1s var(--spring) .2s both}
@@ -323,6 +340,7 @@ input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0;wid
     </header>
     <h1 class="greet" id="greet"></h1>
     <p class="sub rv" style="--i:2" id="sub"></p>
+    <div class="legend rv" style="--i:2" id="legend"></div>
     <div class="sec-head rv" style="--i:3"><span class="mono">01 — 도착한 노래</span><span class="mono" id="inboxCount"></span></div>
     <div class="carousel rv" style="--i:4" id="carousel"></div>
     <div class="dots rv" style="--i:5" id="dots"></div>
@@ -339,6 +357,7 @@ input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0;wid
     <div class="compose-stage rv" style="--i:1">
       <div class="cs-blob" id="csBlob"></div>
       <span class="tag cs-mood" id="csMood">MOOD · 잔잔한</span>
+      <span class="tag cs-taste" id="csTaste"></span>
       <span class="tag cs-to" id="csTo">TO · 누구에게?</span>
       <div class="cs-title"><b id="csTitle" class="ph">노래 제목</b><span id="csArtist"></span></div>
     </div>
@@ -374,7 +393,9 @@ input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0;wid
     <div class="orbit-wrap rv" style="--i:2"><div class="orbit" id="orbit"></div></div>
     <div class="member-card glass rv" style="--i:3" id="mcard"></div>
     <div class="stats rv" style="--i:4" id="stats"></div>
-    <div class="sec-head rv" style="--i:5"><span class="mono">이번 주 우리집 무드</span><span class="mono">· 가족 평균</span></div>
+    <div class="sec-head rv" style="--i:5"><span class="mono">취향이 겹친 색</span><span class="mono" id="pairCount"></span></div>
+    <div class="pairs rv" style="--i:5" id="pairs"></div>
+    <div class="sec-head rv" style="--i:6"><span class="mono">이번 주 우리집 무드</span><span class="mono">· 가족 평균</span></div>
     <div class="rv" style="--i:6" id="moodFamily"></div>
     <button class="ghost-btn reset pressable rv" style="--i:7" id="reset">데모 데이터 초기화</button>
   </section>
@@ -399,6 +420,7 @@ input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0;wid
           <div class="pl-art" id="plArt"></div>
           <div class="pl-meta"><h2 id="plTitle"></h2><p id="plArtist"></p></div>
           <p class="pl-note" id="plNote"></p>
+          <p class="pl-taste mono" id="plTaste"></p>
           <div class="prog"><div class="bar"><i id="plBar"></i></div><div class="times mono"><span id="plCur">0:00</span><span id="plLeft">-0:00</span></div></div>
           <p class="hum-note mono" id="humNote">이 노래의 무드로 만든 허밍이 흘러요</p>
         </div>
@@ -424,23 +446,24 @@ input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0;wid
 /* ================= data ================= */
 const AXES=[['차분한','신나는'],['먹먹한','행복한'],['새벽','한낮'],['혼자','함께']];
 const MEMBERS=[
-  {id:'jimin',name:'지민',colors:['#5b8cff','#a9c8ff','#ffc9b0','#c4b5ff']},
-  {id:'mom',name:'엄마',colors:['#ff8a5c','#ffc2a6','#f7a6d8','#ffe1a8']},
-  {id:'dad',name:'아빠',colors:['#2f6fd6','#79b4ff','#5fd3c0','#c9e6ff']},
-  {id:'sua',name:'서아',colors:['#f06fc9','#ffb3e6','#a98bff','#ffd6ef']},
-  {id:'grandma',name:'할머니',colors:['#36b79c','#a6ecd9','#ffd98a','#fff1c9']},
+  {id:'jimin',name:'지민',color:'#3d6ff0',cname:'바다 파랑'},
+  {id:'mom',name:'엄마',color:'#ff7440',cname:'노을 주황'},
+  {id:'dad',name:'아빠',color:'#17b58f',cname:'숲 초록'},
+  {id:'sua',name:'서아',color:'#ee55bd',cname:'풍선 분홍'},
+  {id:'grandma',name:'할머니',color:'#f3b11e',cname:'햇살 노랑'},
 ];
 const PHRASES=['자기 전에 들어봐','출근길에 생각나서','이거 듣고 힘내','우리 노래 같아서','옛날 생각 나더라'];
 const REACTS=['🥹','🥰','🎶','🔥'];
-const KEY='hum.v1';
+const KEY='hum.v2';
 const now=Date.now(),M=60000,H=60*M,D=24*H;
 function seed(){return{me:'jimin',songs:[
-  {id:'s1',title:'밤편지',artist:'아이유',from:'mom',to:['jimin'],mood:[.18,.62,.08,.35],note:'자기 전에 들어봐. 엄마 젊을 때 생각나더라 🌙',at:now-2*H,plays:2,heard:[],reacts:[],liked:[]},
+  {id:'s1',title:'밤편지',artist:'아이유',from:'mom',to:['jimin'],mood:[.18,.62,.08,.35],note:'자기 전에 들어봐. 엄마 젊을 때 생각나더라 🌙',at:now-2*H,plays:2,heard:[],reacts:[],liked:['grandma']},
   {id:'s2',title:'서른 즈음에',artist:'김광석',from:'dad',to:['jimin','sua'],mood:[.3,.28,.3,.2],note:'아빠가 너만 할 때 듣던 노래. 가사 한번 들어봐',at:now-9*H,plays:1,heard:[],reacts:[],liked:[]},
-  {id:'s3',title:'Ditto',artist:'NewJeans',from:'sua',to:['jimin'],mood:[.62,.55,.4,.82],note:'언니 이거 요즘 무한반복 중 ㅋㅋ',at:now-26*H,plays:4,heard:['jimin'],reacts:[{by:'jimin',e:'🔥'}],liked:['jimin']},
+  {id:'s3',title:'Ditto',artist:'NewJeans',from:'sua',to:['jimin'],mood:[.62,.55,.4,.82],note:'언니 이거 요즘 무한반복 중 ㅋㅋ',at:now-26*H,plays:4,heard:['jimin'],reacts:[{by:'jimin',e:'🔥'}],liked:['jimin','mom']},
   {id:'s4',title:'바람의 노래',artist:'조용필',from:'grandma',to:['jimin','sua','mom'],mood:[.35,.72,.85,.9],note:'우리 강아지들 오늘도 힘내라',at:now-2*D,plays:6,heard:['jimin','mom'],reacts:[{by:'mom',e:'🥹'},{by:'jimin',e:'🥰'}],liked:['mom']},
   {id:'s5',title:'주저하는 연인들을 위해',artist:'잔나비',from:'jimin',to:['mom'],mood:[.4,.7,.7,.6],note:'엄마 아빠 생각나는 노래',at:now-3*D,plays:3,heard:['mom'],reacts:[{by:'mom',e:'🥹'}],liked:['mom']},
-  {id:'s6',title:'그대에게',artist:'무한궤도',from:'dad',to:['mom'],mood:[.88,.85,.75,.7],note:'오랜만에 드라이브 갈까?',at:now-4*D,plays:2,heard:['mom'],reacts:[{by:'mom',e:'🔥'}],liked:[]},
+  {id:'s6',title:'그대에게',artist:'무한궤도',from:'dad',to:['mom'],mood:[.88,.85,.75,.7],note:'오랜만에 드라이브 갈까?',at:now-4*D,plays:2,heard:['mom'],reacts:[{by:'mom',e:'🔥'}],liked:['mom']},
+  {id:'s7',title:'바람의 노래',artist:'조용필',from:'dad',to:['mom'],mood:[.3,.6,.7,.6],note:'어머님이 보내신 거 보고 생각나서. 이 노래 좋지',at:now-5*D,plays:1,heard:['mom'],reacts:[],liked:[]},
 ]}}
 let state;
 try{state=JSON.parse(localStorage.getItem(KEY))}catch(e){}
@@ -455,9 +478,24 @@ const nm=id=>id===state.me?'나':mem(id).name;
 const hash=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)};
 function hex2rgb(h){const n=parseInt(h.slice(1),16);return[n>>16,(n>>8)&255,n&255]}
 function mix(a,b,t){const A=hex2rgb(a),B=hex2rgb(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
-function moodColors(m){
-  return[mix('#2c5ae6','#ff6a3d',m[0]),mix('#6f9eff','#ff9466',m[1]),mix('#9466ff','#ffc457',m[2]),mix('#22bba2','#ee62c4',m[3])];
-}
+const lighten=(h,t)=>mix(h,'#ffffff',t),shade=(h,t)=>mix(h,'#1a1440',t);
+/* 1 person → shades of their color · 2+ → their colors blended together */
+function palette(cols){const[A,B,C,Dd]=cols;switch(cols.length){
+  case 0:return['#d9d4cb','#ece7df','#cfd2dc','#f4efe7'];
+  case 1:return[A,lighten(A,.45),shade(A,.12),lighten(A,.68)];
+  case 2:return[A,B,mix(A,B,.5),lighten(A,.45)];
+  case 3:return[A,B,C,mix(A,C,.5)];
+  default:return[A,B,C,Dd]}}
+MEMBERS.forEach(m=>m.colors=palette([m.color]));
+const keyOf=(t,a)=>(String(t)+'|'+String(a)).toLowerCase().replace(/\s+/g,'');
+/* taste = everyone who sent this song or ♥'d it (same title+artist counts as the same song) */
+function tasteOf(key){const ids=[];state.songs.filter(s=>keyOf(s.title,s.artist)===key).sort((a,b)=>a.at-b.at)
+  .forEach(s=>[s.from,...s.liked].forEach(id=>{if(!ids.includes(id))ids.push(id)}));return ids}
+const taste=s=>tasteOf(keyOf(s.title,s.artist));
+const songColors=s=>palette(taste(s).map(id=>mem(id).color));
+const tdots=ids=>`<span class="tdots">${ids.map(id=>`<i style="background:${mem(id).color}"></i>`).join('')}</span>`;
+const tasteLabel=ids=>ids.length>1?ids.map(nm).join(' × '):nm(ids[0])+'의 색';
+function paintBlob(el,cols){if(el)cols.forEach((v,i)=>el.style.setProperty('--c'+(i+1),v))}
 function moodWord(m){
   const[e,h]=m;
   if(e<.4&&h>=.55)return'포근한';if(e>=.6&&h>=.55)return'들뜬';if(e<.4&&h<.45)return'먹먹한';
@@ -467,7 +505,7 @@ function blob(colors,{seed=0,size='md',speed=1}={}){
   const c=colors;
   return`<div class="blob ${size}" style="--c1:${c[0]};--c2:${c[1]};--c3:${c[2]};--c4:${c[3]};--d:${((7+seed%5)/speed).toFixed(2)}s;--r:${seed*47%360}deg;--dl:-${seed%7}s"><i></i><i></i><i></i></div>`;
 }
-function songBlob(s,o={}){return blob(moodColors(s.mood),{seed:hash(s.id),...o})}
+function songBlob(s,o={}){return blob(songColors(s),{seed:hash(s.id),speed:.7+s.mood[0]*.9,...o})}
 function ago(t){const d=Date.now()-t;if(d<M)return'방금';if(d<H)return Math.floor(d/M)+'분 전';if(d<D)return Math.floor(d/H)+'시간 전';return Math.floor(d/D)+'일 전'}
 function fmt(s){s=Math.max(0,Math.floor(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
 function vib(n=8){try{navigator.vibrate&&navigator.vibrate(n)}catch(e){}}
@@ -513,7 +551,7 @@ function MoodWidget(el,{values,readonly=false,ghosts=[],onChange}){
   const id='g'+(++uid);
   el.className='mood'+(readonly?' ro':'');
   el.innerHTML=`<svg class="mood-svg"><defs><filter id="${id}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter></defs><path class="glow" filter="url(#${id})"/><path class="core"/></svg>`+
-    AXES.map((a,i)=>`<div class="mrow"><span class="ml mono">${a[0]}</span><div class="mt" data-i="${i}">${ghosts.map(g=>`<span class="gh" style="left:${g[i]*100}%"></span>`).join('')}<b class="mh"></b></div><span class="mr mono">${a[1]}</span></div>`).join('');
+    AXES.map((a,i)=>`<div class="mrow"><span class="ml mono">${a[0]}</span><div class="mt" data-i="${i}">${ghosts.map(g=>`<span class="gh" style="left:${g.v[i]*100}%;background:${g.c}"></span>`).join('')}<b class="mh"></b></div><span class="mr mono">${a[1]}</span></div>`).join('');
   const w={el,target:values.slice(),disp:values.map(v=>v*.2+.4),hot:-1,
     tracks:[...el.querySelectorAll('.mt')],handles:[...el.querySelectorAll('.mh')],glow:el.querySelector('.glow'),core:el.querySelector('.core'),
     set(v){this.target=v.slice()}};
@@ -568,6 +606,7 @@ function renderHome(){
   const me=mem(state.me),g=greeting();
   $('#meBtn').innerHTML=blob(me.colors,{seed:3,size:'sm'});
   $('#greet').innerHTML=splitLetters(g+',')+'<br><b>'+splitLetters(me.name+'님',g.length+1)+'</b>';
+  $('#legend').innerHTML=MEMBERS.map(m=>`<span class="${m.id===state.me?'me':''}"><i style="background:${m.color};color:${m.color}"></i>${m.id===state.me?m.name+' (나)':m.name}</span>`).join('');
   const list=inbox(),unheard=list.filter(s=>!s.heard.includes(state.me));
   $('#sub').innerHTML=unheard.length?`새로 도착한 노래 <em>${unheard.length}곡</em>이 기다리고 있어요`:'오늘은 누구에게 노래를 보내볼까요?';
   $('#inboxCount').textContent=`${list.length} songs`;
@@ -578,7 +617,7 @@ function renderHome(){
       <div class="art">${songBlob(s,{size:'lg'})}</div>
       <span class="tag t-from">${n?'<i class="new-dot"></i>':''}FROM ${esc(nm(s.from))}</span>
       <span class="tag t-mood">MOOD · ${moodWord(s.mood)}</span>
-      <div class="stat glass"><b>x${s.plays}</b><span>함께 들음</span></div>
+      <div class="stat glass">${tdots(taste(s))}<span>${taste(s).length>1?'취향 겹침':'아직 한 사람의 색'}</span><em>${esc(tasteLabel(taste(s)))}</em></div>
       <div class="note glass"><h3>${esc(s.title)}</h3><p class="artist">${esc(s.artist)}</p>
         <p class="msg">“${esc(s.note)}”</p>
         <div class="foot"><span class="mono">${ago(s.at)} · ${String(i+1).padStart(2,'0')}/${String(list.length).padStart(2,'0')}</span><span class="play-ic">▶</span></div></div>
@@ -591,7 +630,7 @@ function renderHome(){
   $('#tlCount').textContent=`${all.length} total`;
   $('#timeline').innerHTML=all.map((s,i)=>`<li class="row glass rv" style="--i:${7+Math.min(i,6)}" data-open="${s.id}">
     <div class="mini">${songBlob(s,{size:'sm'})}</div>
-    <div class="rt"><b>${esc(s.title)}</b><span>${esc(s.artist)} ${s.reacts.length?`<span class="emo">${s.reacts.map(r=>r.e).join('')}</span>`:''}</span></div>
+    <div class="rt"><b>${esc(s.title)}</b><span>${tdots(taste(s))} ${esc(s.artist)} ${s.reacts.length?`<span class="emo">${s.reacts.map(r=>r.e).join('')}</span>`:''}</span></div>
     <div class="rr mono">${esc(nm(s.from))} → ${s.to.map(t=>esc(nm(t))).join(', ')}<br>${ago(s.at)}</div></li>`).join('');
 }
 function carouselFx(){
@@ -609,15 +648,19 @@ function newDraft(o={}){return{title:'',artist:'',link:'',to:o.to||[],mood:[.5,.
 function renderSend(o={}){
   draft=newDraft(o);
   ['fTitle','fArtist','fLink','fNote'].forEach(id=>$('#'+id).value='');$('#noteCount').textContent='0 / 120';
-  $('#csBlob').innerHTML=blob(moodColors(draft.mood),{seed:5,size:'lg'});csBlobEl=$('#csBlob .blob');
-  $('#pick').innerHTML=MEMBERS.filter(m=>m.id!==state.me).map((m,i)=>`<button class="pressable ${draft.to.includes(m.id)?'on':''}" data-pick="${m.id}"><div class="mb"><span class="chk">✓</span>${blob(m.colors,{seed:i+2,size:'sm'})}</div><span>${m.name}</span></button>`).join('');
+  $('#csBlob').innerHTML=blob(palette([mem(state.me).color]),{seed:5,size:'lg'});csBlobEl=$('#csBlob .blob');
+  $('#pick').innerHTML=MEMBERS.filter(m=>m.id!==state.me).map((m,i)=>`<button class="pressable ${draft.to.includes(m.id)?'on':''}" data-pick="${m.id}" style="--mc:${m.color}"><div class="mb"><span class="chk">✓</span>${blob(m.colors,{seed:i+2,size:'sm'})}</div><span>${m.name}</span></button>`).join('');
   $('#chips').innerHTML=PHRASES.map(p=>`<button class="pressable" data-phrase="${p}">${p}</button>`).join('');
   sendMood=MoodWidget($('#moodSend'),{values:draft.mood,ghosts:[],onChange:v=>{draft.mood=v;updatePreview()}});
   updatePreview();
 }
 function updatePreview(){
-  const c=moodColors(draft.mood);
-  if(csBlobEl){c.forEach((v,i)=>csBlobEl.style.setProperty('--c'+(i+1),v));csBlobEl.style.setProperty('--d',(11-draft.mood[0]*7).toFixed(1)+'s')}
+  const tn=draft.title.toLowerCase().replace(/\s+/g,''),an=draft.artist.toLowerCase().replace(/\s+/g,'');
+  const same=tn?state.songs.filter(x=>x.title.toLowerCase().replace(/\s+/g,'')===tn&&(!an||x.artist.toLowerCase().replace(/\s+/g,'')===an)):[];
+  const ids=[state.me];same.forEach(x=>[x.from,...x.liked].forEach(id=>{if(!ids.includes(id))ids.push(id)}));
+  paintBlob(csBlobEl,palette(ids.map(id=>mem(id).color)));if(csBlobEl)csBlobEl.style.setProperty('--d',(11-draft.mood[0]*7).toFixed(1)+'s');
+  const tt=$('#csTaste'),lbl=ids.length>1?'취향 겹침 · '+ids.slice(1).map(nm).join(', '):'COLOR · 나의 색';
+  tt.innerHTML=tdots(ids)+esc(lbl);if(tt.dataset.n!=ids.length){if(ids.length>(+tt.dataset.n||1)){const r=$('#csBlob').getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,ids.map(id=>mem(id).color),24);toast(ids.slice(1).map(nm).join(', ')+'도 좋아하는 노래예요 · 색이 섞였어요');vib([10,30,10])}tt.dataset.n=ids.length;tt.classList.remove('bump');void tt.offsetWidth;tt.classList.add('bump')}
   const w=moodWord(draft.mood),mt=$('#csMood');if(mt.dataset.w!==w){mt.dataset.w=w;mt.textContent='MOOD · '+w;mt.classList.remove('bump');void mt.offsetWidth;mt.classList.add('bump')}
   const t=$('#csTitle');t.textContent=draft.title||'노래 제목';t.classList.toggle('ph',!draft.title);
   $('#csArtist').textContent=draft.artist;
@@ -655,20 +698,22 @@ function doSend(){
   const fam=$('.tab[data-go="family"]').getBoundingClientRect(),[tx,ty]=rel(fam.left+fam.width/2,fam.top+fam.height/2);
   const dx=tx-(x+r.width/2),dy=ty-(y+r.height/2);
   fl.animate([{transform:'translate(0,0) scale(1) rotate(0)',filter:'blur(0)'},{transform:`translate(${dx*.15}px,${-140}px) scale(.9) rotate(-30deg)`,offset:.35},{transform:`translate(${dx}px,${dy}px) scale(.08) rotate(160deg)`,filter:'blur(4px)'}],
-    {duration:1100,easing:'cubic-bezier(.55,0,.3,1)',fill:'forwards'}).onfinish=()=>{fl.remove();src.style.opacity='';burst(fam.left+fam.width/2,fam.top+fam.height/2,moodColors(s.mood),24)};
-  burst(r.left+r.width/2,r.top+r.height/2,moodColors(s.mood),20);
+    {duration:1100,easing:'cubic-bezier(.55,0,.3,1)',fill:'forwards'}).onfinish=()=>{fl.remove();src.style.opacity='';burst(fam.left+fam.width/2,fam.top+fam.height/2,songColors(s),24)};
+  burst(r.left+r.width/2,r.top+r.height/2,songColors(s),20);
   setTimeout(()=>{toast(`${s.to.map(nm).join(', ')}에게 노래가 날아갔어요 ✦`);go('home')},1150);
 }
 
 /* ================= FAMILY ================= */
 let selMember=null;
-function exchange(a,b){return state.songs.filter(s=>(s.from===a&&s.to.includes(b))||(s.from===b&&s.to.includes(a))).length}
+function songKeys(){return[...new Set(state.songs.map(s=>keyOf(s.title,s.artist)))]}
+function overlapSongs(a,b){return songKeys().filter(k=>{const t=tasteOf(k);return t.includes(a)&&t.includes(b)}).map(k=>state.songs.find(s=>keyOf(s.title,s.artist)===k))}
+function exchange(a,b){return overlapSongs(a,b).length}
 function renderFamily(){
   const n=MEMBERS.length;
-  $('#famTitle').innerHTML=`<b>${n}개의 주파수</b>가<br>서로를 듣고 있어요`;
+  $('#famTitle').innerHTML=`<b>${n}가지 색</b>이<br>노래로 섞이고 있어요`;
   const pos=MEMBERS.map((m,i)=>{const a=(i/n)*Math.PI*2-Math.PI/2;return{x:50+Math.cos(a)*38,y:50+Math.sin(a)*38}});
   let lines='';
-  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const c=exchange(MEMBERS[i].id,MEMBERS[j].id);if(c)lines+=`<line class="lnk" x1="${pos[i].x}" y1="${pos[i].y}" x2="${pos[j].x}" y2="${pos[j].y}" stroke-width="${.2+c*.22}" opacity="${Math.min(.25+c*.18,.8)}"/>`}
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const c=exchange(MEMBERS[i].id,MEMBERS[j].id);if(c){const gid='lg'+i+j;lines+=`<linearGradient id="${gid}" gradientUnits="userSpaceOnUse" x1="${pos[i].x}" y1="${pos[i].y}" x2="${pos[j].x}" y2="${pos[j].y}"><stop offset="0" stop-color="${MEMBERS[i].color}"/><stop offset="1" stop-color="${MEMBERS[j].color}"/></linearGradient><line class="lnk" x1="${pos[i].x}" y1="${pos[i].y}" x2="${pos[j].x}" y2="${pos[j].y}" stroke="url(#${gid})" stroke-width="${.5+c*.6}" opacity=".9"/>`}}
   $('#orbit').innerHTML=`<svg viewBox="0 0 100 100"><circle class="ring" cx="50" cy="50" r="38"/><circle class="ring" cx="50" cy="50" r="24"/>${lines}</svg>
     <div class="core-node">${blob(['#f3efe7','#cfdcff','#ffd9c6','#e9e0ff'],{seed:9,size:'md',speed:.6})}<span class="lbl">우리집</span></div>`+
     MEMBERS.map((m,i)=>`<div class="node ${selMember===m.id?'sel':''}" data-member="${m.id}" style="left:${pos[i].x}%;top:${pos[i].y}%"><div class="node-in">${blob(m.colors,{seed:i*3+1,size:'md'})}<span>${m.id===state.me?m.name+' (나)':m.name}</span></div></div>`).join('');
@@ -678,7 +723,12 @@ function renderFamily(){
   const reacts=state.songs.reduce((a,s)=>a+s.reacts.length,0),plays=state.songs.reduce((a,s)=>a+s.plays,0);
   $('#stats').innerHTML=[[week.length,'이번 주 노래'],[reacts,'리액션'],[plays,'함께 들은 횟수']].map(([v,l])=>`<div class="glass"><b>x${v}</b><span>${l}</span></div>`).join('');
   const avg=i=>week.length?week.reduce((a,s)=>a+s.mood[i],0)/week.length:.5;
-  const ghosts=MEMBERS.map(m=>{const ss=state.songs.filter(s=>s.from===m.id);return ss.length?AXES.map((_,i)=>ss.reduce((a,s)=>a+s.mood[i],0)/ss.length):null}).filter(Boolean);
+  const ghosts=MEMBERS.map(m=>{const ss=state.songs.filter(s=>s.from===m.id);return ss.length?{c:m.color,v:AXES.map((_,i)=>ss.reduce((a,s)=>a+s.mood[i],0)/ss.length)}:null}).filter(Boolean);
+  const pairs=[];for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const ss=overlapSongs(MEMBERS[i].id,MEMBERS[j].id);if(ss.length)pairs.push([MEMBERS[i],MEMBERS[j],ss])}
+  pairs.sort((a,b)=>b[2].length-a[2].length);$('#pairCount').textContent=pairs.length+' pairs';
+  $('#pairs').innerHTML=pairs.length?pairs.map(([a,b,ss],k)=>`<div class="pair glass pressable" data-open="${ss[0].id}"><div class="pb">${blob(palette([a.color,b.color]),{seed:k*5+2,size:'md'})}</div>
+    <b>${tdots([a.id,b.id])} ${a.id===state.me?'나':a.name} × ${b.id===state.me?'나':b.name}</b><span class="mono">${ss.length}곡 겹침</span><p>${ss.map(x=>esc(x.title)).join(' · ')}</p></div>`).join('')
+    :'<p class="sub">아직 겹친 취향이 없어요. 받은 노래에 ♥를 눌러보세요.</p>';
   MoodWidget($('#moodFamily'),{values:AXES.map((_,i)=>avg(i)),readonly:true,ghosts});
 }
 function renderMemberCard(id,anim=true){
@@ -686,8 +736,8 @@ function renderMemberCard(id,anim=true){
   let best=null,bc=0;MEMBERS.forEach(o=>{if(o.id===id)return;const c=exchange(id,o.id);if(c>bc){bc=c;best=o}});
   const c=$('#mcard');
   c.innerHTML=`<div class="av">${blob(m.colors,{seed:7,size:'md'})}</div><h4>${m.name}${id===state.me?' · 나':''}</h4>
-    <span class="mono">${sent.length?'최근 보낸 곡 · '+esc(sent.sort((a,b)=>b.at-a.at)[0].title):'아직 보낸 노래가 없어요'}</span>
-    <div class="grid3"><div><b>${sent.length}</b><span class="mono">sent</span></div><div><b>${got.length}</b><span class="mono">received</span></div><div><b style="font-size:15px;line-height:1.9">${best?best.name:'—'}</b><span class="mono">단짝</span></div></div>
+    <span class="mono">${tdots([id])} ${m.cname} · ${sent.length?'최근 보낸 곡 · '+esc(sent.sort((a,b)=>b.at-a.at)[0].title):'아직 보낸 노래가 없어요'}</span>
+    <div class="grid3"><div><b>${sent.length}</b><span class="mono">sent</span></div><div><b>${got.length}</b><span class="mono">received</span></div><div><b style="font-size:15px;line-height:1.9">${best?best.name:'—'}</b><span class="mono">취향 단짝</span></div></div>
     <button class="act pressable" data-as="${id}" ${id===state.me?'disabled':''}>${id===state.me?'지금 이 시점으로 보고 있어요':m.name+' 시점으로 앱 보기'}</button>`;
   if(anim){c.classList.remove('swap');void c.offsetWidth;c.classList.add('swap')}
 }
@@ -733,14 +783,14 @@ function openPlayer(id,fromEl){
   P.list=inbox().length&&s.to.includes(state.me)?inbox():[...state.songs].sort((a,b)=>b.at-a.at);
   loadSong(s);
   const sh=$('#player');sh.classList.add('open');sh.setAttribute('aria-hidden','false');
-  if(fromEl){const r=fromEl.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,moodColors(s.mood),12)}
+  if(fromEl){const r=fromEl.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,songColors(s),12)}
   setTimeout(()=>play(true),450);
 }
 function loadSong(s){
   P.song=s;P.pos=0;P.dur=150+hash(s.title)%110;
-  const c=moodColors(s.mood),body=$('#sheetBody');c.forEach((v,i)=>body.style.setProperty('--c'+(i+1),v));
+  paintBlob($('#sheetBody'),songColors(s));
   $('#plArt').innerHTML=songBlob(s,{size:'lg'});
-  $('#plFrom').textContent='FROM '+nm(s.from);$('#plMood').textContent=moodWord(s.mood);
+  $('#plFrom').textContent='FROM '+nm(s.from);$('#plTaste').innerHTML=tdots(taste(s))+esc(tasteLabel(taste(s)));$('#plMood').textContent=moodWord(s.mood);
   $('#plTitle').textContent=s.title;$('#plArtist').textContent=s.artist;$('#plNote').textContent='“'+s.note+'”';
   $('#extLink').href=s.link&&/^https?:\/\//.test(s.link)?s.link:'https://www.youtube.com/results?search_query='+encodeURIComponent(s.title+' '+s.artist);
   $('#likeBtn').textContent=s.liked.includes(state.me)?'♥':'♡';$('#likeBtn').classList.toggle('liked',s.liked.includes(state.me));
@@ -761,7 +811,13 @@ function updateProgress(){$('#plBar').style.width=(P.pos/P.dur*100)+'%';$('#plCu
 $$('[data-close]').forEach(b=>b.addEventListener('click',closePlayer));
 $('#likeBtn').addEventListener('click',e=>{e.stopPropagation();const s=P.song,i=s.liked.indexOf(state.me);i<0?s.liked.push(state.me):s.liked.splice(i,1);save();
   const b=e.currentTarget;b.textContent=i<0?'♥':'♡';b.classList.toggle('liked',i<0);vib(12);
-  if(i<0){const r=b.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,['#ff5a7a','#ffb3c4','#ff8a5c'],22)}});
+  const ids=taste(s),cols=songColors(s);paintBlob($('#plArt .blob'),cols);paintBlob($('#sheetBody'),cols);
+  const pt=$('#plTaste');pt.innerHTML=tdots(ids)+esc(tasteLabel(ids));pt.classList.remove('bump');void pt.offsetWidth;pt.classList.add('bump');
+  const r=b.getBoundingClientRect();
+  if(i<0){burst(r.left+r.width/2,r.top+r.height/2,[mem(state.me).color,...cols],26);
+    const a=$('#plArt').getBoundingClientRect();burst(a.left+a.width/2,a.top+a.height/2,[mem(state.me).color],14);
+    if(ids.length>1&&s.from!==state.me)toast(ids.filter(x=>x!==state.me).map(nm).join(', ')+'와 취향이 겹쳤어요 · 색이 섞여요')}
+  else if(s.from!==state.me)toast('내 색이 빠졌어요')});
 document.addEventListener('click',e=>{const r=e.target.closest('[data-react]');if(!r)return;const b=r.getBoundingClientRect();
   floatEmoji(b.left+b.width/2,b.top,r.dataset.react);P.song.reacts.push({by:state.me,e:r.dataset.react});save();vib(8);toast(`${nm(P.song.from)}에게 ${r.dataset.react} 를 보냈어요`)});
 $('#replyBtn').addEventListener('click',()=>{const s=P.song;closePlayer();go('send',{to:s.from===state.me?s.to.slice():[s.from]})});

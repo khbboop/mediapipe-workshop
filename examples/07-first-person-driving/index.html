@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>07 — first-person driving</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+</head>
+<body>
+  <div id="hud">
+    <div id="score">
+      <div><span class="label">거리</span> <span id="dist">0.00</span> km</div>
+      <div><span class="label">점수</span> <span id="pts">0</span></div>
+      <div><span class="label">추월</span> <span id="overtakes">0</span></div>
+    </div>
+    <div id="damage"><div class="label">차량 상태</div><div class="bar"><div id="damageFill"></div></div></div>
+    <canvas id="minimap" width="180" height="180"></canvas>
+    <div id="gauge">
+      <canvas id="gaugeCanvas" width="260" height="150"></canvas>
+      <div id="speed">0</div>
+      <div id="unit">km/h</div>
+      <div id="gear">N</div>
+    </div>
+    <div id="mode"></div>
+    <div id="toast"></div>
+  </div>
+
+  <div id="overlay">
+    <div class="panel">
+      <h1 id="title">1인칭 드라이브</h1>
+      <p id="subtitle">끝없이 이어지는 고속도로를 달리며 차들을 추월하세요. 충돌하면 차가 손상됩니다.</p>
+      <table class="keys">
+        <tr><td><kbd>W</kbd> / <kbd>↑</kbd></td><td>가속</td></tr>
+        <tr><td><kbd>S</kbd> / <kbd>↓</kbd></td><td>브레이크 · 후진</td></tr>
+        <tr><td><kbd>A</kbd> <kbd>D</kbd> / <kbd>←</kbd> <kbd>→</kbd></td><td>핸들</td></tr>
+        <tr><td><kbd>Space</kbd></td><td>핸드브레이크</td></tr>
+        <tr><td><kbd>N</kbd></td><td>낮 / 밤 전환</td></tr>
+        <tr><td><kbd>C</kbd></td><td>웹캠 손 핸들 (두 손으로 핸들 잡기)</td></tr>
+        <tr><td><kbd>M</kbd></td><td>소리 켜기/끄기</td></tr>
+        <tr><td><kbd>R</kbd></td><td>다시 시작</td></tr>
+      </table>
+      <button id="startBtn">시작하기</button>
+    </div>
+  </div>
+
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

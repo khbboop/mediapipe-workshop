@@ -959,8 +959,12 @@ function toast(msg) {
   const t = $('#toast'); t.textContent = msg; t.hidden = false;
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3200);
 }
-let ovURL = null;
-function showOverlay(kind, url, filename) {
+let ovURL = null, ovBlob = null;
+// Inside the claude.ai viewer, files go through the `downloads` capability; locally, a plain download link works.
+let dlCap = null;
+if (window.claude && window.claude.use) window.claude.use('downloads').then((d) => { dlCap = d; }).catch(() => {});
+function showOverlay(kind, url, filename, blob) {
+  ovBlob = blob;
   if (ovURL) URL.revokeObjectURL(ovURL);
   ovURL = url;
   const m = $('#ov-media'); m.innerHTML = '';
@@ -973,6 +977,17 @@ function showOverlay(kind, url, filename) {
   const dl = $('#ov-dl'); dl.href = url; dl.download = filename;
   $('#overlay').hidden = false;
 }
+$('#ov-dl').addEventListener('click', async (e) => {
+  if (!dlCap || !ovBlob) return; // fall back to the link's own download
+  e.preventDefault();
+  try {
+    await dlCap.save({ filename: $('#ov-dl').download, data: ovBlob });
+    toast('저장했어요.');
+  } catch (err) {
+    if (err && err.code === 'declined') return;
+    toast('여기서는 저장할 수 없어요. 이미지나 영상을 우클릭해서 저장하세요.');
+  }
+});
 $('#ov-close').addEventListener('click', () => { $('#overlay').hidden = true; const v = $('#ov-media video'); if (v) v.pause(); });
 $('#overlay').addEventListener('click', (e) => { if (e.target.id === 'overlay') $('#ov-close').click(); });
 
@@ -981,7 +996,7 @@ $('#snap').addEventListener('click', () => {
   const s = 2048, oc = document.createElement('canvas');
   oc.width = oc.height = s;
   draw(oc.getContext('2d'), s, s, { poster: true });
-  oc.toBlob((b) => showOverlay('image', URL.createObjectURL(b), `${slug()}-${state.mode}.png`), 'image/png');
+  oc.toBlob((b) => showOverlay('image', URL.createObjectURL(b), `${slug()}-${state.mode}.png`, b), 'image/png');
 });
 
 let rec = null, chunks = [];
@@ -1005,7 +1020,7 @@ $('#rec').addEventListener('click', () => {
     const type = rec.mimeType || 'video/webm';
     const blob = new Blob(chunks, { type });
     rec = null; updateRec();
-    showOverlay('video', URL.createObjectURL(blob), `${slug()}-${state.mode}.${type.includes('mp4') ? 'mp4' : 'webm'}`);
+    showOverlay('video', URL.createObjectURL(blob), `${slug()}-${state.mode}.${type.includes('mp4') ? 'mp4' : 'webm'}`, blob);
   };
   rec.start(250);
   updateRec();

@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<!-- artifact:start -->
+<title>ECHO NOD 앞 디스플레이</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: a spec-sheet page (eyebrow, title, rule) holding the 2.6:1 front display in a dark bezel, with a three-column
+   presenter panel under it that mirrors the spec's columns: 흐름 · 할 수 있는 것 · 그러면. */
+:root {
+  --page: #f4f3f8;
+  --ink: #2e2c39;
+  --muted: #8a879a;
+  --line: #dddbe7;
+  --accent: #6a59cf;
+  --app-bg: #e2ebfb; --app-ink: #4669c0;
+  --tbd-bg: #fbefc6; --tbd-ink: #95741a;
+  --bezel: #1b1b20;
+  --scr: #efeff3; --scr-ink: #3b3a45; --scr-muted: #9b9aa7;
+  --font: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--page); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.page { max-width: 1240px; margin: 0 auto; padding-block: 36px 56px; display: grid; gap: 28px; }
+.eyebrow { font-size: 12px; letter-spacing: .28em; color: var(--accent); text-transform: uppercase; }
+h1 { margin: 6px 0 6px; font-size: 30px; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 70ch; }
+.chip { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 500; vertical-align: 1px; }
+.chip.app { background: var(--app-bg); color: var(--app-ink); }
+.chip.tbd { background: var(--tbd-bg); color: var(--tbd-ink); }
+.rule { border: 0; border-top: 2px solid var(--ink); margin: 0; }
+
+/* ---------- the car display ---------- */
+.dash {
+  background: linear-gradient(180deg, #e7e6ec, #d9d8df); border-radius: 28px; padding: 26px 26px 34px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+}
+.bezel { background: var(--bezel); border-radius: 26px; padding: 12px; box-shadow: 0 30px 60px rgba(30, 28, 45, .25), inset 0 1px 0 rgba(255,255,255,.08); }
+.wrap { position: relative; width: 100%; aspect-ratio: 2.6 / 1; border-radius: 16px; overflow: hidden; background: var(--scr); }
+#screen { position: absolute; left: 0; top: 0; width: 1560px; height: 600px; transform-origin: 0 0; color: var(--scr-ink); font-family: var(--font); }
+#cv { position: absolute; inset: 0; width: 1560px; height: 600px; }
+.layer { position: absolute; inset: 0; }
+.dash-caption { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 14px; font-size: 12px; color: var(--muted); }
+
+/* status bar */
+.status { position: absolute; left: 0; right: 0; top: 0; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 44px; font-size: 19px; z-index: 3; }
+.status .left, .status .right { display: flex; align-items: center; gap: 22px; min-width: 360px; }
+.status .right { justify-content: flex-end; }
+.status .brand { font-size: 15px; letter-spacing: .4em; color: var(--scr-muted); }
+.clock { font-weight: 500; font-variant-numeric: tabular-nums; }
+.gear { display: flex; gap: 10px; font-family: var(--mono); font-size: 16px; color: #c2c1cb; }
+.gear b { color: var(--scr-ink); font-weight: 500; }
+.mini-riders { display: flex; gap: 6px; }
+.mini-riders i { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.8); }
+.drive-state { font-size: 15px; color: var(--scr-muted); }
+
+/* generic scene text */
+.center-col { position: absolute; left: 0; right: 0; display: grid; justify-items: center; text-align: center; gap: 10px; }
+.big-t { font-size: 40px; font-weight: 500; letter-spacing: -0.01em; }
+.soft-t { font-size: 20px; color: var(--scr-muted); }
+.huge-clock { font-size: 120px; font-weight: 300; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1; }
+
+/* F1 */
+.qr-card { width: 276px; height: 276px; border-radius: 30px; background: #fff; display: grid; place-items: center; box-shadow: 0 18px 50px rgba(120, 110, 170, .18); }
+.qr-card canvas { width: 220px; height: 220px; }
+
+/* F2 */
+.board-row { display: flex; gap: 70px; justify-content: center; }
+.rider { display: grid; justify-items: center; gap: 16px; font-size: 22px; color: var(--scr-muted); transition: color .6s; }
+.rider .ball { width: 132px; height: 132px; border-radius: 50%; filter: blur(14px); opacity: .45; transform: scale(.9); transition: filter .9s, opacity .9s, transform .9s, box-shadow .9s; }
+.rider.on { color: var(--scr-ink); }
+.rider.on .ball { filter: blur(0); opacity: 1; transform: scale(1); }
+.rider .sub { font-size: 15px; color: var(--scr-muted); margin-top: -10px; }
+
+/* now playing */
+.np { position: absolute; left: 820px; top: 112px; width: 560px; display: grid; gap: 12px; transition: opacity .5s, transform .5s; }
+.np.fading { opacity: 0; transform: translateY(8px); }
+.owner { display: inline-flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 500; }
+.owner .dots { display: inline-flex; }
+.owner .dots i { width: 18px; height: 18px; border-radius: 50%; box-shadow: 0 0 0 3px rgba(255,255,255,.9); }
+.owner .dots i + i { margin-left: -6px; }
+.title { font-size: 58px; font-weight: 500; line-height: 1.12; letter-spacing: -0.02em; text-wrap: balance; }
+.artist { font-size: 24px; color: var(--scr-muted); margin-top: -6px; }
+.reason { display: inline-flex; justify-self: start; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,.72); font-size: 17px; box-shadow: 0 6px 18px rgba(120,110,170,.12); }
+.line { display: flex; align-items: center; gap: 12px; font-size: 25px; color: var(--scr-ink); font-weight: 300; margin-top: 6px; }
+.line svg { width: 26px; height: 26px; flex: none; color: var(--scr-muted); transition: color .3s; }
+.line.speaking svg { color: var(--accent); }
+.note { justify-self: start; max-width: 520px; padding: 12px 18px; border-radius: 18px 18px 18px 6px; background: rgba(255,255,255,.82); font-size: 19px; box-shadow: 0 10px 30px rgba(120,110,170,.16); animation: pop .5s ease-out; }
+.note small { display: block; font-size: 14px; color: var(--scr-muted); }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+
+/* end zones (좋다) */
+.zone { position: absolute; top: 120px; width: 112px; height: 380px; border-radius: 56px; display: grid; justify-items: center; align-content: center; gap: 14px; font-size: 17px; color: var(--scr-muted); cursor: pointer; user-select: none; background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.18)); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75); transition: background .3s; border: 0; font-family: inherit; padding: 0; }
+.zone.left { left: 22px; } .zone.right { right: 22px; }
+.zone:hover { background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.3)); }
+.zone:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.zone .ring { --p: 0; --c: #ccc; width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--c) calc(var(--p) * 1turn), rgba(255,255,255,.6) 0); box-shadow: 0 8px 22px rgba(120,110,170,.16); }
+.zone .ring span { width: 64px; height: 64px; border-radius: 50%; background: var(--scr); display: grid; place-items: center; }
+.zone svg { width: 30px; height: 30px; color: var(--scr-ink); }
+.zone .who { color: var(--scr-ink); font-weight: 500; }
+.zone .hint { font-size: 13px; line-height: 1.35; text-align: center; padding: 0 10px; min-height: 36px; }
+.zone.locked { cursor: default; opacity: .55; }
+.zone.nudge { animation: nudge .4s; }
+@keyframes nudge { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+/* journey band */
+.band { position: absolute; left: 190px; width: 1180px; top: 486px; transition: top .9s cubic-bezier(.3,.7,.2,1), left .9s, width .9s; }
+.band.big { top: 300px; left: 230px; width: 1100px; }
+.band-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 18px; color: var(--scr-muted); margin-bottom: 12px; }
+.band-head b { color: var(--scr-ink); font-weight: 500; font-size: 22px; font-variant-numeric: tabular-nums; }
+.band.big .band-head b { font-size: 34px; }
+.next { display: inline-flex; align-items: center; gap: 8px; }
+.next i { width: 14px; height: 14px; border-radius: 50%; }
+.bar { position: relative; display: flex; gap: 5px; height: 16px; }
+.band.big .bar { height: 26px; }
+.seg { height: 100%; border-radius: 999px; transition: flex-basis .9s ease, opacity .5s; opacity: .9; min-width: 0; }
+.seg.done { opacity: .38; }
+.seg.fresh { animation: grow 1s ease-out; }
+@keyframes grow { from { opacity: 0; transform: scaleX(0); } }
+.marker { position: absolute; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: #fff; box-shadow: 0 4px 14px rgba(80,70,140,.3); transition: left .25s linear; }
+.firstday { font-size: 24px; color: var(--scr-ink); text-align: center; margin-bottom: 30px; font-weight: 300; }
+
+/* in-screen messages */
+.announce { position: absolute; left: 50%; top: 78px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px; border-radius: 999px; background: rgba(255,255,255,.85); font-size: 19px; box-shadow: 0 10px 30px rgba(120,110,170,.18); white-space: nowrap; animation: pop .4s ease-out; z-index: 4; }
+.announce svg { width: 22px; height: 22px; color: var(--accent); }
+.arrive-t { position: absolute; left: 0; right: 0; top: 452px; text-align: center; display: grid; gap: 6px; transition: opacity 1.2s; }
+.arrive-t .big-t { font-size: 44px; }
+
+/* ---------- presenter panel ---------- */
+.panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1.4fr); gap: 0; border-top: 1px solid var(--ink); }
+.col { padding: 16px 18px 20px; display: grid; align-content: start; gap: 12px; min-width: 0; }
+.col + .col { border-left: 1px solid var(--line); }
+.col h2 { margin: 0; font-size: 12px; font-weight: 500; color: var(--muted); }
+.flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.flow button, .act { width: 100%; text-align: left; font: inherit; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; cursor: pointer; display: grid; grid-template-columns: 34px 1fr; align-items: baseline; gap: 4px; }
+.flow button:hover, .act:hover { border-color: #bdb8d6; }
+.flow button:focus-visible, .act:focus-visible, .tog input:focus-visible, .filebtn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.flow button[aria-current="step"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.code { font-size: 11px; font-weight: 600; color: var(--accent); font-family: var(--mono); }
+.act small { grid-column: 2; color: var(--muted); font-size: 12px; }
+.acts { display: grid; gap: 6px; }
+.tog { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.tog input { accent-color: var(--accent); width: 16px; height: 16px; }
+.toggles { display: grid; gap: 6px; padding-top: 6px; border-top: 1px solid var(--line); }
+.filebtn { position: relative; display: inline-flex; font-size: 13px; color: var(--accent); cursor: pointer; }
+.filebtn input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.note-s { font-size: 12px; color: var(--muted); margin: 0; }
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.log li { display: grid; grid-template-columns: 34px 1fr; gap: 4px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 13px; animation: fadein .4s; }
+.log li:first-child { font-weight: 500; }
+.log .arrow { color: var(--muted); margin-right: 4px; }
+@keyframes fadein { from { opacity: 0; transform: translateY(-4px); } }
+@media (max-width: 860px) {
+  .panel { grid-template-columns: 1fr; }
+  .col + .col { border-left: 0; border-top: 1px solid var(--line); }
+  .dash { padding: 12px 12px 16px; border-radius: 18px; }
+  .bezel { padding: 6px; border-radius: 14px; }
+  .wrap { border-radius: 9px; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; transition-duration: .01s !important; } }
+</style>
+<!-- artifact:head-end -->
+</head>
+<body>
+<!-- artifact:body-start -->
+<div class="page">
+  <header>
+    <div class="eyebrow">ECHO NOD · Front display prototype</div>
+    <h1>앞 디스플레이, 노래가 흐를 때</h1>
+    <p class="lede">기능 명세 F1–F8을 그대로 움직여 보는 화면이에요. 아래 패널의 버튼은 차 안팎에서 일어나는 일(문 닫기, 폰 알림, 말하기)을 대신 눌러 주는 것이고, 화면의 양 끝 <b>좋다</b>는 직접 누를 수 있어요. <span class="chip app">앱</span> 은 폰 앱으로 이어지는 지점, <span class="chip tbd">미정</span> 은 아직 정하지 않은 부분이에요.</p>
+  </header>
+  <hr class="rule">
+
+  <section class="dash" aria-label="앞 디스플레이">
+    <div class="bezel">
+      <div class="wrap" id="wrap">
+        <div id="screen">
+          <canvas id="cv" aria-hidden="true"></canvas>
+
+          <div class="status">
+            <div class="left">
+              <span class="clock" id="clock">14:26</span>
+              <span class="gear" id="gear"><span>P</span><span>R</span><span>N</span><b>D</b></span>
+              <span class="mini-riders" id="mini-riders"></span>
+            </div>
+            <div class="brand">ECHO NOD</div>
+            <div class="right">
+              <span class="drive-state" id="drive-state">주행 중</span>
+              <span>8°C</span>
+            </div>
+          </div>
+
+          <!-- F1 -->
+          <div class="layer" id="sc-register" hidden>
+            <div class="center-col" style="top:92px">
+              <div class="qr-card"><canvas id="qr" width="220" height="220" aria-label="차 등록 QR 코드"></canvas></div>
+              <div class="big-t" style="font-size:30px;margin-top:14px">ECHO NOD 앱으로 찍어 주세요</div>
+              <div class="soft-t">가족 중 한 명만 찍으면 모두 함께 써요</div>
+            </div>
+          </div>
+
+          <!-- ready / off -->
+          <div class="layer" id="sc-ready" hidden>
+            <div class="center-col" style="top:170px">
+              <div class="huge-clock" id="ready-clock">14:26</div>
+              <div class="soft-t" id="ready-sub">문을 닫으면 누가 탔는지 알아볼게요</div>
+            </div>
+          </div>
+
+          <!-- F2 -->
+          <div class="layer" id="sc-boarding" hidden>
+            <div class="center-col" style="top:118px">
+              <div class="soft-t">누가 탔는지 보고 있어요</div>
+            </div>
+            <div class="board-row" id="board-row" style="position:absolute;left:0;right:0;top:206px"></div>
+          </div>
+
+          <!-- F3 extras (band itself is shared) -->
+          <div class="layer" id="sc-depart" hidden>
+            <div class="center-col" style="top:150px">
+              <div class="firstday" id="firstday" hidden>오늘은 가족이 돌아가며 노래의 주인공이 돼요</div>
+            </div>
+          </div>
+
+          <!-- F4 -->
+          <div class="layer" id="sc-playing" hidden>
+            <div class="np" id="np">
+              <div class="owner"><span class="dots" id="np-dots"></span><span id="np-owner"></span></div>
+              <div class="title" id="np-title"></div>
+              <div class="artist" id="np-artist"></div>
+              <div class="reason" id="np-reason"></div>
+              <div class="line" id="np-line-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+                <span id="np-line"></span>
+              </div>
+              <div class="note" id="np-note" hidden></div>
+            </div>
+            <button class="zone left" id="zone-driver" type="button" aria-label="운전석 좋다">
+              <span class="ring"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.6-9.3A5.3 5.3 0 0 1 12 6.6a5.3 5.3 0 0 1 9.6 4.6c-2.1 4.7-9.6 9.3-9.6 9.3z"/></svg></span></span>
+              <span class="who" id="zone-driver-who">아빠</span>
+              <span>좋다</span>
+              <span class="hint" id="zone-driver-hint">정차 중에만</span>
+            </button>
+            <button class="zone right" id="zone-pass" type="button" aria-label="조수석 좋다">
+              <span class="ring"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.6-9.3A5.3 5.3 0 0 1 12 6.6a5.3 5.3 0 0 1 9.6 4.6c-2.1 4.7-9.6 9.3-9.6 9.3z"/></svg></span></span>
+              <span class="who" id="zone-pass-who">엄마</span>
+              <span>좋다</span>
+              <span class="hint" id="zone-pass-hint"></span>
+            </button>
+          </div>
+
+          <!-- shared journey band (F3 big, F4 docked) -->
+          <div class="band" id="band" hidden>
+            <div class="firstday" id="firstday-2" hidden></div>
+            <div class="band-head"><span>도착까지 <b id="remain">24분</b></span><span class="next" id="next"></span></div>
+            <div class="bar" id="bar"><div class="marker" id="marker"></div></div>
+          </div>
+
+          <!-- F8 -->
+          <div class="layer" id="sc-arrive" hidden>
+            <div class="arrive-t" id="arrive-t">
+              <div class="big-t" id="arrive-count"></div>
+              <div class="soft-t" id="arrive-who"></div>
+            </div>
+          </div>
+
+          <div class="announce" id="announce" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 9a4 4 0 0 1 0 6"/></svg>
+            <span id="announce-t"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dash-caption"><span>가로 2.6 : 1 · 모두가 함께 보는 화면 · 양 끝은 운전석 쪽과 조수석 쪽의 반응 영역</span><span id="scene-name">F1 차 등록</span></div>
+  </section>
+
+  <section class="panel" aria-label="프로토타입 조작">
+    <div class="col">
+      <h2>흐름</h2>
+      <ol class="flow" id="flow">
+        <li><button type="button" data-go="register"><span class="code">F1</span>차 등록</button></li>
+        <li><button type="button" data-go="boarding"><span class="code">F2</span>탑승 인식</button></li>
+        <li><button type="button" data-go="depart"><span class="code">F3</span>여정의 띠</button></li>
+        <li><button type="button" data-go="playing"><span class="code">F4</span>재생 중</button></li>
+        <li><button type="button" data-go="arrive"><span class="code">F8</span>도착</button></li>
+      </ol>
+      <div class="toggles">
+        <label class="tog"><input type="checkbox" id="t-first"> 첫날 (기록이 없는 날)</label>
+        <label class="tog"><input type="checkbox" id="t-alone"> 아빠 혼자 탄 날</label>
+        <label class="tog"><input type="checkbox" id="t-stopped"> 정차 중</label>
+        <label class="tog"><input type="checkbox" id="t-read"> 한 줄 소리로 읽어 주기 <span class="chip tbd">미정</span></label>
+        <label class="tog"><input type="checkbox" id="t-mute"> 음악 소리 끄기</label>
+      </div>
+    </div>
+    <div class="col">
+      <h2>지금 할 수 있는 것</h2>
+      <div class="acts" id="acts"></div>
+      <div class="toggles">
+        <label class="filebtn">곡 소리를 내 파일로 바꾸기<input type="file" id="audiofile" accept="audio/*"></label>
+        <p class="note-s" id="audio-note">소리는 데모 비트예요. 곡마다 빠르기만 달라져요. 파일을 넣으면 그 소리에 맞춰 화면이 움직여요.</p>
+      </div>
+    </div>
+    <div class="col">
+      <h2>그러면</h2>
+      <ol class="log" id="log"></ol>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s) => document.querySelector(s);
+const TAU = Math.PI * 2;
+const W = 1560, H = 600;
+
+/* ---------- family & songs (example data) ---------- */
+const PEOPLE = {
+  dad: { role: '아빠', color: '#8ec9f0' },
+  mom: { role: '엄마', color: '#f4a3c8' },
+  daughter: { role: '딸', color: '#c3a6f2' },
+  son: { role: '아들', color: '#93d9bd' },
+};
+const hasBatchim = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c % 28 !== 0; };
+const subj = (id) => PEOPLE[id].role + (hasBatchim(PEOPLE[id].role) ? '이' : '가');
+const andJoin = (ids) => ids.map((id, i) => PEOPLE[id].role + (i < ids.length - 1 ? (hasBatchim(PEOPLE[id].role) ? '과' : '와') : '')).join(' ');
+
+const SONGS = {
+  mom: [
+    { title: '광화문 연가', artist: '이문세', line: '엄마가 스무 살 때 나온 노래', first: '엄마가 고른 첫 노래' },
+    { title: '그대에게', artist: '무한궤도', line: '엄마가 대학 축제에서 따라 부른 노래', first: '엄마가 고른 노래' },
+  ],
+  dad: [
+    { title: '서른 즈음에', artist: '김광석', line: '아빠가 운전을 처음 배우던 해의 노래', first: '아빠가 고른 첫 노래' },
+    { title: '걱정말아요 그대', artist: '전인권', line: '아빠가 힘든 날 꺼내 듣는 노래', first: '아빠가 고른 노래' },
+    { title: '사랑했지만', artist: '김광석', line: '아빠가 혼자 운전할 때 자주 듣는 노래', first: '아빠가 고른 노래' },
+  ],
+  daughter: [
+    { title: 'Ditto', artist: 'NewJeans', line: '딸이 요즘 하루에 세 번 듣는 노래', first: '딸이 고른 첫 노래' },
+    { title: 'Hype Boy', artist: 'NewJeans', line: '딸이 시험 끝난 날 들은 노래', first: '딸이 고른 노래' },
+  ],
+  pair: { title: '밤편지', artist: '아이유', line: '지난 주말 둘이 같이 좋다고 한 노래' },
+};
+const SENT = { from: 'son', title: '봄날', artist: '방탄소년단', line: '아들이 학교 가는 길에 보낸 노래', note: '엄마 생일 축하해! 운전 조심하고' };
+const RATES = [1, 0.93, 1.07, 0.88, 1.12, 0.97, 1.04];
+const SONG_SECONDS = 30;          // one 4-minute slot plays for 30 s in the prototype
+const MIN_PER_SEC = 4 / SONG_SECONDS;
+
+/* ---------- state ---------- */
+const st = {
+  scene: 'register', registered: false,
+  firstDay: false, alone: false, stopped: false, readAloud: false,
+  confirmed: {}, driver: 'dad', passenger: 'mom',
+  segs: [], elapsed: 0, cur: -1, sentDone: false,
+  like: null, ripple: null, arriveT0: 0, sceneT0: 0, t: 0,
+};
+const riding = () => (st.alone ? ['dad'] : ['dad', 'mom', 'daughter']);
+const confirmedRiders = () => riding().filter((id) => st.confirmed[id]);
+
+/* ---------- log (the spec's "그러면" column) ---------- */
+function log(code, text, app = false) {
+  const li = document.createElement('li');
+  li.innerHTML = `<span class="code">${code}</span><span><span class="arrow">→</span>${app ? '<span class="chip app">앱</span> ' : ''}</span>`;
+  li.lastChild.append(text);
+  const ol = $('#log');
+  ol.prepend(li);
+  while (ol.children.length > 16) ol.lastChild.remove();
+}
+
+/* ---------- audio ---------- */
+let actx = null, analyser, outGain, fd, td, demoBuf = null, demoSrc = null, mediaEl = null, mediaSrc = null, useFile = false, musicOn = false;
+function ensureCtx() {
+  if (!actx) {
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = actx.createAnalyser(); analyser.fftSize = 2048; analyser.smoothingTimeConstant = 0.5;
+    analyser.minDecibels = -90; analyser.maxDecibels = -20;
+    outGain = actx.createGain(); outGain.gain.value = $('#t-mute').checked ? 0 : 1;
+    analyser.connect(outGain); outGain.connect(actx.destination);
+    fd = new Uint8Array(analyser.frequencyBinCount); td = new Float32Array(analyser.fftSize);
+  }
+  if (actx.state === 'suspended') actx.resume();
+}
+async function renderDemo(sr) {
+  const bpm = 104, beat = 60 / bpm, bars = 8, dur = bars * 4 * beat;
+  const oc = new OfflineAudioContext(2, Math.ceil(sr * dur), sr);
+  const master = oc.createGain(); master.gain.value = 0.7; master.connect(oc.destination);
+  const noise = oc.createBuffer(1, sr, sr); const nd = noise.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+  const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
+  const env = (g, t, a, p, r) => { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(p, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + r); };
+  const kick = (t) => { const o = oc.createOscillator(), g = oc.createGain(); o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(44, t + 0.13); env(g, t, 0.004, 0.9, 0.4); o.connect(g).connect(master); o.start(t); o.stop(t + 0.5); };
+  const hiss = (t, len, hp, vol) => { const s = oc.createBufferSource(); s.buffer = noise; const f = oc.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp; const g = oc.createGain(); env(g, t, 0.002, vol, len); s.connect(f).connect(g).connect(master); s.start(t, Math.random() * 0.5); s.stop(t + len + 0.05); };
+  const tone = (t, m, len, type, vol, cut) => { const o = oc.createOscillator(), g = oc.createGain(), f = oc.createBiquadFilter(); o.type = type; o.frequency.value = mtof(m); f.type = 'lowpass'; f.frequency.value = cut; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + Math.min(0.3, len * 0.25)); g.gain.exponentialRampToValueAtTime(0.0001, t + len); o.connect(f).connect(g).connect(master); o.start(t); o.stop(t + len + 0.05); };
+  const chords = [[60, 64, 67], [57, 60, 64], [53, 57, 60], [55, 59, 62]];
+  for (let bar = 0; bar < bars; bar++) {
+    const t0 = bar * 4 * beat, ch = chords[bar % 4];
+    ch.forEach((m) => tone(t0, m, 4 * beat, 'triangle', 0.06, 1800));
+    for (let b = 0; b < 4; b++) {
+      const tb = t0 + b * beat;
+      kick(tb);
+      if (b % 2) hiss(tb, 0.18, 1800, 0.3);
+      hiss(tb + beat / 2, 0.05, 8000, 0.12);
+      tone(tb, ch[0] - 24, beat * 0.8, 'sine', 0.3, 700);
+      for (let s = 0; s < 2; s++) tone(tb + s * beat / 2, ch[(b + s) % 3] + 12, beat / 2, 'sine', 0.05, 4000);
+    }
+  }
+  return oc.startRendering();
+}
+async function startMusic() {
+  ensureCtx();
+  outGain.gain.cancelScheduledValues(actx.currentTime);
+  outGain.gain.setValueAtTime($('#t-mute').checked ? 0 : 1, actx.currentTime);
+  if (musicOn) return;
+  musicOn = true;
+  if (useFile && mediaEl) { mediaEl.currentTime = 0; mediaEl.play().catch(() => {}); return; }
+  if (!demoBuf) demoBuf = await renderDemo(actx.sampleRate);
+  if (!musicOn) return;
+  demoSrc = actx.createBufferSource(); demoSrc.buffer = demoBuf; demoSrc.loop = true;
+  demoSrc.playbackRate.value = RATES[Math.max(0, st.cur) % RATES.length];
+  demoSrc.connect(analyser); demoSrc.start();
+}
+function stopMusic(fade = 0) {
+  if (!actx || !musicOn) return;
+  musicOn = false;
+  const end = actx.currentTime + fade;
+  if (fade > 0) { outGain.gain.setValueAtTime(outGain.gain.value, actx.currentTime); outGain.gain.linearRampToValueAtTime(0, end); }
+  const src = demoSrc; demoSrc = null;
+  setTimeout(() => { try { src && src.stop(); } catch (e) {} if (mediaEl) mediaEl.pause(); }, fade * 1000 + 30);
+}
+function setRate() { if (demoSrc) demoSrc.playbackRate.setTargetAtTime(RATES[st.cur % RATES.length], actx.currentTime, 0.4); }
+$('#audiofile').addEventListener('change', (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  ensureCtx();
+  if (!mediaEl) { mediaEl = new Audio(); mediaEl.loop = true; mediaSrc = actx.createMediaElementSource(mediaEl); mediaSrc.connect(analyser); }
+  if (mediaEl.src) URL.revokeObjectURL(mediaEl.src);
+  mediaEl.src = URL.createObjectURL(f);
+  const wasOn = musicOn; stopMusic(0); useFile = true;
+  $('#audio-note').textContent = `지금 소리: ${f.name}. 모든 곡에 같은 파일을 써요.`;
+  if (wasOn || st.scene === 'playing') startMusic();
+  e.target.value = '';
+});
+$('#t-mute').addEventListener('change', (e) => { if (outGain) outGain.gain.value = e.target.checked ? 0 : 1; });
+
+function speak(text) {
+  try {
+    if (!('speechSynthesis' in window)) return false;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.lang = 'ko-KR'; u.rate = 1.02;
+    if (outGain && !$('#t-mute').checked) {
+      outGain.gain.setTargetAtTime(0.35, actx.currentTime, 0.1);
+      u.onend = u.onerror = () => { if (outGain && !$('#t-mute').checked) outGain.gain.setTargetAtTime(1, actx.currentTime, 0.3); $('#np-line-wrap').classList.remove('speaking'); };
+    }
+    speechSynthesis.speak(u);
+    return true;
+  } catch (e) { return false; }
+}
+
+/* ---------- analysis ---------- */
+const A = { e: new Float32Array(6), agc: new Float32Array(6).fill(0.15), level: 0.2, beat: 0 };
+const BANDS_HZ = [[30, 80], [80, 250], [250, 700], [700, 2000], [2000, 6000], [6000, 16000]];
+let prevLow = 0, lastBeat = 0; const flux = [];
+function analyze(dt) {
+  const live = actx && musicOn && actx.state === 'running';
+  if (live) {
+    analyser.getByteFrequencyData(fd);
+    const binHz = actx.sampleRate / analyser.fftSize;
+    let low = 0;
+    BANDS_HZ.forEach(([lo, hi], k) => {
+      const a = Math.max(1, Math.floor(lo / binHz)), b = Math.min(fd.length - 1, Math.ceil(hi / binHz));
+      let s = 0; for (let i = a; i <= b; i++) s += fd[i];
+      const e = Math.min(1, s / (b - a + 1) / 255 * (0.9 + k * 0.1));
+      if (k < 2) low += e / 2;
+      A.e[k] += (e - A.e[k]) * (e > A.e[k] ? 0.6 : 0.2);
+    });
+    analyser.getFloatTimeDomainData(td);
+    let s = 0; for (let i = 0; i < td.length; i++) s += td[i] * td[i];
+    A.level += (Math.min(1, Math.sqrt(s / td.length) * 3.2) - A.level) * 0.25;
+    const f = Math.max(0, low - prevLow); prevLow = low;
+    flux.push(f); if (flux.length > 50) flux.shift();
+    const m = flux.reduce((a, b) => a + b, 0) / flux.length;
+    const sd = Math.sqrt(flux.reduce((a, b) => a + (b - m) * (b - m), 0) / flux.length);
+    if (f > m + 1.4 * sd && f > 0.02 && st.t - lastBeat > 0.23) { lastBeat = st.t; A.beat = 1; }
+  } else {
+    for (let k = 0; k < 6; k++) A.e[k] += (0.16 + 0.08 * Math.sin(st.t * 0.6 + k * 1.3) - A.e[k]) * 0.05;
+    A.level += (0.2 - A.level) * 0.05;
+  }
+  for (let k = 0; k < 6; k++) A.agc[k] = Math.max(A.agc[k] * Math.pow(0.85, dt), A.e[k], 0.08);
+  A.beat *= Math.pow(0.02, dt);
+}
+
+/* ---------- color helpers & jelly ---------- */
+const hexRgb = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const rgba = (h, a) => { const [r, g, b] = hexRgb(h); return `rgba(${r},${g},${b},${a})`; };
+const mixHex = (a, b, t) => { const A1 = hexRgb(a), B1 = hexRgb(b); return '#' + A1.map((v, i) => Math.round(v + (B1[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
+function paletteFor(colors) {
+  if (colors.length === 1) { const c = colors[0]; return [c, mixHex(c, '#ffffff', 0.55), mixHex(c, '#d8d2f3', 0.45), mixHex(c, '#ffffff', 0.3)]; }
+  return colors.flatMap((c) => [c, mixHex(c, '#ffffff', 0.5)]);
+}
+const lutCache = new Map();
+function lutFor(colors) {
+  const pal = paletteFor(colors), key = pal.join();
+  if (lutCache.has(key)) return lutCache.get(key);
+  const cols = pal.map(hexRgb), lut = new Uint8ClampedArray(512 * 3);
+  for (let i = 0; i < 512; i++) {
+    const x = i / 512 * cols.length, k = Math.floor(x), f = x - k, e = f * f * (3 - 2 * f);
+    const a = cols[k % cols.length], b = cols[(k + 1) % cols.length];
+    for (let ch = 0; ch < 3; ch++) lut[i * 3 + ch] = a[ch] + (b[ch] - a[ch]) * e;
+  }
+  if (lutCache.size > 40) lutCache.clear();
+  lutCache.set(key, lut);
+  return lut;
+}
+const lutMix = new Uint8ClampedArray(512 * 3);
+function blendLut(a, b, m) { for (let i = 0; i < lutMix.length; i++) lutMix[i] = a[i] + (b[i] - a[i]) * m; return lutMix; }
+
+const CAN_BLUR = (() => { try { const t = document.createElement('canvas').getContext('2d'); t.filter = 'blur(2px)'; return t.filter === 'blur(2px)'; } catch (e) { return false; } })();
+const soft = (c, px) => { if (CAN_BLUR) c.filter = px > 0.3 ? `blur(${px.toFixed(1)}px)` : 'none'; };
+const JN = 140;
+const jcv = document.createElement('canvas'); jcv.width = jcv.height = JN;
+const jctx = jcv.getContext('2d'); const jimg = jctx.createImageData(JN, JN);
+function drawJelly(c, cx, cy, R, lut, alpha) {
+  const t = st.t, L = A.level, B = A.beat;
+  const balls = [[0, 0, 0.34 * (1 + 0.08 * B + 0.1 * L)]];
+  for (let k = 0; k < 6; k++) {
+    const e = Math.min(1.3, A.e[k] / A.agc[k]) * (0.45 + 0.55 * Math.min(1, A.e[k] * 3));
+    const a = k * TAU / 6 + t * 0.12 + 0.35 * Math.sin(t * 0.21 + k * 1.7);
+    const d = 0.18 + 0.34 * e + 0.06 * B, r = 0.17 + 0.12 * e + 0.03 * Math.sin(t * 0.8 + k);
+    balls.push([Math.cos(a) * d, Math.sin(a) * d, r]);
+  }
+  const data = jimg.data, span = 2.2, lx = -0.55, ly = -0.65;
+  const gc = Math.cos(t * 0.09 + 0.6), gs = Math.sin(t * 0.09 + 0.6);
+  for (let py = 0; py < JN; py++) {
+    const y = (py / (JN - 1) - 0.5) * span;
+    for (let px = 0; px < JN; px++) {
+      const x = (px / (JN - 1) - 0.5) * span;
+      let f = 0, gx = 0, gy = 0;
+      for (let i = 0; i < balls.length; i++) {
+        const dx = x - balls[i][0], dy = y - balls[i][1], d2 = dx * dx + dy * dy + 1e-4, v = balls[i][2] * balls[i][2] / d2;
+        f += v; gx += v * dx / d2; gy += v * dy / d2;
+      }
+      const o = (py * JN + px) * 4;
+      if (f < 0.62) { data[o + 3] = 0; continue; }
+      const edge = Math.min(1, (f - 0.62) / 0.5), al = edge * edge * (3 - 2 * edge);
+      const u = (0.3 * (x * gc + y * gs) + 0.07 * Math.min(f, 2.4) + t * 0.02 + 0.05 * Math.sin(x * 2.1 + t * 0.3) + 0.05 * Math.cos(y * 1.9 - t * 0.25) + 10) % 1;
+      const li = (u * 512) | 0;
+      let r = lut[li * 3], g = lut[li * 3 + 1], b = lut[li * 3 + 2];
+      const rim = 1 - Math.min(1, (f - 0.62) / 1.4), gl = Math.hypot(gx, gy) + 1e-6;
+      const lit = Math.max(0, -(gx * lx + gy * ly) / gl), shine = 0.35 * rim + 0.25 * lit * rim;
+      r += (255 - r) * shine; g += (250 - g) * shine; b += (255 - b) * shine;
+      const glint = Math.max(0, 1 - Math.abs(f - 1.25) * 2.5) * 0.28;
+      r += (255 - r) * glint; g += (246 - g) * glint; b += (226 - b) * glint;
+      data[o] = r; data[o + 1] = g; data[o + 2] = b; data[o + 3] = al * 255;
+    }
+  }
+  jctx.putImageData(jimg, 0, 0);
+  const size = R * span * 0.9;
+  c.save();
+  c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+  soft(c, R * 0.09); c.globalAlpha = 0.5 * alpha;
+  c.drawImage(jcv, cx - size * 0.56, cy - size * 0.56, size * 1.12, size * 1.12);
+  soft(c, R * 0.006); c.globalAlpha = alpha;
+  c.drawImage(jcv, cx - size / 2, cy - size / 2, size, size);
+  c.restore();
+}
+
+/* ---------- canvas ---------- */
+const cv = $('#cv'), ctx = cv.getContext('2d');
+let jellyAlpha = 0;
+function drawFrame() {
+  ctx.save();
+  ctx.clearRect(0, 0, W, H);
+  // calm metallic-white ground with a soft top light
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#f6f6f9'); g.addColorStop(1, '#e8e8ee');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  const hl = ctx.createRadialGradient(W / 2, -120, 0, W / 2, -120, 900);
+  hl.addColorStop(0, 'rgba(255,255,255,.95)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = hl; ctx.fillRect(0, 0, W, H);
+
+  const scene = st.scene;
+  const seg = st.segs[st.cur];
+  // owner color wash behind everything while a song plays
+  let colors = null, cx = 480, cy = 296, R = 200, target = 0;
+  if (scene === 'playing' && seg) { colors = segColors(seg); target = 1; }
+  else if (scene === 'depart') { colors = confirmedRiders().map((id) => PEOPLE[id].color); cx = W / 2; cy = 172; R = 80; target = 0.45; }
+  else if (scene === 'arrive') { colors = confirmedRiders().map((id) => PEOPLE[id].color); cx = W / 2; cy = 262; R = 175; target = st.t - st.arriveT0 < 7 ? 1 : 0; }
+  jellyAlpha += (target - jellyAlpha) * 0.05;
+  if (colors && colors.length && jellyAlpha > 0.01) {
+    // wide wash of the owner's color
+    const wash = ctx.createRadialGradient(cx, cy, 0, cx, cy, 780);
+    wash.addColorStop(0, rgba(colors[0], 0.38 * jellyAlpha)); wash.addColorStop(1, rgba(colors[0], 0));
+    ctx.fillStyle = wash; ctx.fillRect(0, 0, W, H);
+    let lut = lutFor(colors);
+    if (scene === 'playing' && st.like) {
+      const m = likeProgress();
+      lut = blendLut(lut, lutFor([...colors, PEOPLE[st.like.by].color]), m);
+      // the presser's color seeps in from their side
+      const ex = st.like.side === 'left' ? 0 : W;
+      const eg = ctx.createRadialGradient(ex, H / 2, 0, ex, H / 2, 200 + 520 * m);
+      eg.addColorStop(0, rgba(PEOPLE[st.like.by].color, 0.6)); eg.addColorStop(1, rgba(PEOPLE[st.like.by].color, 0));
+      ctx.fillStyle = eg; ctx.fillRect(0, 0, W, H);
+    }
+    drawJelly(ctx, cx, cy, R, lut, jellyAlpha);
+  }
+  // F6: ripples of the sender's color rolling in from the screen edge
+  if (st.ripple) {
+    const age = st.t - st.ripple.t0;
+    if (age > 4.5) st.ripple = null;
+    else {
+      soft(ctx, 10);
+      for (let i = 0; i < 4; i++) {
+        const r = age * 330 - i * 120;
+        if (r <= 0) continue;
+        const a = Math.max(0, 1 - r / 1300) * Math.min(1, (4.5 - age) / 1.2);
+        ctx.strokeStyle = rgba(st.ripple.color, 0.75 * a); ctx.lineWidth = 34;
+        ctx.beginPath(); ctx.arc(W + 40, H / 2, r, 0, TAU); ctx.stroke();
+      }
+      soft(ctx, 0);
+    }
+  }
+  ctx.restore();
+}
+
+/* ---------- QR placeholder ---------- */
+(function drawQR() {
+  const c = $('#qr').getContext('2d'), n = 29, s = 220 / n;
+  let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  c.fillStyle = '#fff'; c.fillRect(0, 0, 220, 220);
+  c.fillStyle = '#3b3a45';
+  const finder = (x, y) => { c.fillRect(x * s, y * s, 7 * s, 7 * s); c.fillStyle = '#fff'; c.fillRect((x + 1) * s, (y + 1) * s, 5 * s, 5 * s); c.fillStyle = '#3b3a45'; c.fillRect((x + 2) * s, (y + 2) * s, 3 * s, 3 * s); };
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    const inF = (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
+    if (!inF && rnd() > 0.52) { c.beginPath(); c.arc(x * s + s / 2, y * s + s / 2, s * 0.44, 0, TAU); c.fill(); }
+  }
+  finder(0, 0); finder(n - 7, 0); finder(0, n - 7);
+})();
+
+/* ---------- trip ---------- */
+function segColors(seg) { return [...new Set([...seg.owners, ...seg.likedBy])].map((id) => PEOPLE[id].color); }
+function buildTrip() {
+  const ids = confirmedRiders();
+  const start = Math.floor(Math.random() * ids.length); // first slot is random, then the car takes turns
+  const order = ids.map((_, i) => ids[(start + i) % ids.length]);
+  const used = {}, segs = [];
+  const pick = (id) => { used[id] = (used[id] ?? -1) + 1; return SONGS[id][used[id] % SONGS[id].length]; };
+  let k = 0;
+  while (segs.length < 6) {
+    if (!st.firstDay && segs.length === 2 && ids.includes('mom') && ids.includes('daughter')) {
+      segs.push({ owners: ['mom', 'daughter'], song: SONGS.pair, min: 4, likedBy: [], reason: `${andJoin(['mom', 'daughter'])}의 노래` });
+      continue;
+    }
+    const id = order[k++ % order.length];
+    segs.push({ owners: [id], song: pick(id), min: 4, likedBy: [], reason: `${PEOPLE[id].role} 차례` });
+  }
+  st.segs = segs; st.elapsed = 0; st.cur = -1; st.sentDone = false; st.like = null;
+}
+const total = () => st.segs.reduce((a, s) => a + s.min, 0);
+function segAt(min) { let acc = 0; for (let i = 0; i < st.segs.length; i++) { acc += st.segs[i].min; if (min < acc) return i; } return st.segs.length - 1; }
+const segStart = (i) => st.segs.slice(0, i).reduce((a, s) => a + s.min, 0);
+
+function renderBand() {
+  const bar = $('#bar'), marker = $('#marker');
+  const T = total();
+  [...bar.querySelectorAll('.seg')].forEach((el) => el.remove());
+  st.segs.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'seg' + (i < st.cur ? ' done' : '') + (s.fresh ? ' fresh' : '');
+    s.fresh = false;
+    const cols = segColors(s);
+    el.style.flex = `0 0 calc(${(s.min / T * 100).toFixed(3)}% - 5px)`;
+    el.style.background = cols.length > 1 ? `linear-gradient(90deg, ${cols.join(', ')})` : cols[0];
+    bar.insertBefore(el, marker);
+  });
+  updateBandLive();
+}
+function updateBandLive() {
+  const T = total();
+  $('#marker').style.left = `${Math.min(100, st.elapsed / T * 100)}%`;
+  $('#remain').textContent = `${Math.max(0, Math.ceil(T - st.elapsed))}분`;
+  const nx = st.segs[Math.max(0, st.cur) + 1];
+  $('#next').innerHTML = '';
+  if (nx && st.scene === 'playing') {
+    const dots = segColors(nx).map((c) => `<i style="background:${c}"></i>`).join('');
+    $('#next').innerHTML = `다음 ${dots}`;
+    $('#next').append(` ${nx.owners.map((id) => PEOPLE[id].role).join('·')}`);
+  }
+}
+
+/* ---------- now playing ---------- */
+function showSong(i, instant) {
+  const seg = st.segs[i]; if (!seg) return;
+  const np = $('#np');
+  const fill = () => {
+    $('#np-dots').innerHTML = seg.owners.map((id) => `<i style="background:${PEOPLE[id].color}"></i>`).join('');
+    $('#np-owner').textContent = `${andJoin(seg.owners)}의 노래`;
+    $('#np-title').textContent = seg.song.title;
+    $('#np-artist').textContent = seg.song.artist;
+    $('#np-reason').textContent = seg.reason;
+    $('#np-line').textContent = st.firstDay && seg.song.first ? seg.song.first : seg.song.line;
+    const note = $('#np-note');
+    if (seg.note) { note.innerHTML = '<small>붙여 보낸 한마디</small>'; note.append(seg.note); note.hidden = false; } else note.hidden = true;
+    np.classList.remove('fading');
+    if (st.readAloud && speak($('#np-line').textContent)) $('#np-line-wrap').classList.add('speaking');
+  };
+  if (instant) fill(); else { np.classList.add('fading'); setTimeout(fill, 450); }
+}
+function enterSong(i) {
+  st.cur = i; st.like = null; paintZones();
+  showSong(i, false);
+  setRate();
+  renderBand();
+  const seg = st.segs[i];
+  const ownerOut = seg.owners.filter((id) => !riding().includes(id));
+  log('F4', `${seg.song.title} · ${seg.reason}`);
+  if (ownerOut.length) log('F4', `노래 주인 ${andJoin(ownerOut)}${hasBatchim(PEOPLE[ownerOut[ownerOut.length - 1]].role) ? '은' : '는'} 차 밖에 있어요`);
+}
+
+/* ---------- 좋다 (F5) ---------- */
+const LIKE_SEC = 5;
+const likeProgress = () => (st.like ? Math.min(1, (st.t - st.like.t0) / LIKE_SEC) : 0);
+function like(by, side, how) {
+  if (st.scene !== 'playing') return;
+  const seg = st.segs[st.cur];
+  if (st.like && st.like.by === by) { st.like = null; paintZones(); log('F5', `${subj(by)} 섞이는 동안 다시 눌러서 취소했어요`); return; }
+  if (seg.likedBy.includes(by)) { log('F5', `${subj(by)} 이미 좋다고 했어요`); return; }
+  st.like = { by, side, t0: st.t };
+  log('F5', `${subj(by)} ${how} · 노래 주인 색 가장자리에 ${PEOPLE[by].role} 색이 섞여요`);
+}
+function finishLike() {
+  const { by } = st.like, seg = st.segs[st.cur];
+  st.like = null;
+  seg.likedBy.push(by);
+  const people = [...new Set([...seg.owners, ...seg.likedBy])];
+  log('F5', `끝까지 섞였어요 · "${seg.song.title}" → ${andJoin(people)}의 노래에 저장`);
+  const out = seg.owners.filter((id) => !riding().includes(id));
+  if (out.length) log('F5', `${andJoin(out)} 앱에 ${PEOPLE[by].role}의 좋다가 바로 도착`, true);
+  renderBand(); paintZones();
+}
+function paintZones() {
+  const d = st.driver, p = st.passenger;
+  $('#zone-driver-who').textContent = PEOPLE[d].role;
+  $('#zone-pass-who').textContent = PEOPLE[p].role;
+  $('#zone-pass').hidden = !confirmedRiders().includes(p);
+  $('#zone-driver').classList.toggle('locked', !st.stopped);
+  $('#zone-driver-hint').textContent = st.stopped ? '지금 누를 수 있어요' : '정차 중에만';
+  const seg = st.segs[st.cur];
+  [['#zone-driver', d], ['#zone-pass', p]].forEach(([sel, id]) => {
+    const ring = $(sel + ' .ring');
+    ring.style.setProperty('--c', PEOPLE[id].color);
+    const pr = st.like && st.like.by === id ? likeProgress() : seg && seg.likedBy.includes(id) ? 1 : 0;
+    ring.style.setProperty('--p', pr.toFixed(3));
+  });
+  $('#zone-pass-hint').textContent = st.like && st.like.by === p ? '다시 누르면 취소' : seg && seg.likedBy.includes(p) ? '좋다고 했어요' : '';
+  if (st.like && st.like.by === d) $('#zone-driver-hint').textContent = '다시 누르면 취소';
+}
+$('#zone-pass').addEventListener('click', () => like(st.passenger, 'right', '조수석에서 좋다를 눌렀어요'));
+$('#zone-driver').addEventListener('click', () => {
+  if (!st.stopped) {
+    const z = $('#zone-driver'); z.classList.remove('nudge'); void z.offsetWidth; z.classList.add('nudge');
+    $('#zone-driver-hint').textContent = '운전 중엔 핸들 버튼이나 말로';
+    log('F4', '운전 중에는 화면을 누르지 않아요 · 핸들 버튼이나 "에코노드, 좋다"');
+    return;
+  }
+  like(st.driver, 'left', '정차 중에 운전석 좋다를 눌렀어요');
+});
+
+/* ---------- F6 / F7 ---------- */
+function songArrives() {
+  if (st.scene !== 'playing' || st.sentDone) return;
+  st.sentDone = true;
+  const at = st.cur + 1;
+  const seg = { owners: [SENT.from], song: SENT, min: 2, likedBy: [], reason: `${subj(SENT.from)} 보낸 곡`, note: SENT.note, fresh: true };
+  st.segs.splice(at, 0, seg);
+  const last = st.segs[st.segs.length - 1]; if (last.min > 2) last.min -= 2; // keep the arrival time
+  st.ripple = { color: PEOPLE[SENT.from].color, t0: st.t };
+  const text = `${subj(SENT.from)} 노래를 보냈어요`;
+  announce(text);
+  speak(text);
+  renderBand();
+  log('F6', `화면 끝에서 ${PEOPLE[SENT.from].role} 색 물결 · 스피커 안내 "${text}"`);
+  log('F6', `띠에 작은 칸이 끼어들어요 · 다음 곡으로 "${SENT.title}"`);
+  log('F6', `보낸 사람 앱의 A8에서 시작된 노래`, true);
+}
+function nope() {
+  if (st.scene !== 'playing') return;
+  const seg = st.segs[st.cur];
+  if (confirmedRiders().length === 1) {
+    log('F7', '혼자 탔으니 곡이 넘어가요');
+    st.elapsed = segStart(st.cur + 1) + 0.001;
+  } else {
+    log('F7', `화면 변화 없음 · 함께 탔으니 곡은 끝까지 · 누가 말했는지는 남기지만 조용히 기록`);
+  }
+  log('F7', `내린 뒤 노래 주인(${andJoin(seg.owners)}) 앱에 반응 도착`, true);
+}
+let annTimer = 0;
+function announce(text) {
+  $('#announce-t').textContent = text; $('#announce').hidden = false;
+  clearTimeout(annTimer); annTimer = setTimeout(() => { $('#announce').hidden = true; }, 4200);
+}
+
+/* ---------- scenes ---------- */
+const SCENE_NAMES = { register: 'F1 차 등록', ready: '대기', boarding: 'F2 탑승 인식', depart: 'F3 여정의 띠', playing: 'F4 재생 중', arrive: 'F8 도착', off: '시동 꺼짐' };
+const FLOW_OF = { register: 'register', ready: 'register', boarding: 'boarding', depart: 'depart', playing: 'playing', arrive: 'arrive', off: 'arrive' };
+let departTimer = 0, arriveTimer = 0;
+function setScene(name) {
+  st.scene = name; st.sceneT0 = st.t;
+  ['register', 'ready', 'boarding', 'depart', 'playing', 'arrive'].forEach((s) => { $('#sc-' + s).hidden = s !== (name === 'off' ? 'ready' : name); });
+  $('#band').hidden = !(name === 'depart' || name === 'playing');
+  $('#band').classList.toggle('big', name === 'depart');
+  $('#scene-name').textContent = SCENE_NAMES[name];
+  document.querySelectorAll('#flow button').forEach((b) => b.toggleAttribute('aria-current', false));
+  const cur = document.querySelector(`#flow button[data-go="${FLOW_OF[name]}"]`); if (cur) cur.setAttribute('aria-current', 'step');
+  $('#mini-riders').innerHTML = (name === 'playing' || name === 'depart') ? confirmedRiders().map((id) => `<i title="${PEOPLE[id].role}" style="background:${PEOPLE[id].color}"></i>`).join('') : '';
+  if (name === 'ready') { $('#ready-sub').textContent = '문을 닫으면 누가 탔는지 알아볼게요'; }
+  if (name === 'off') { $('#ready-sub').textContent = '오늘의 이동은 앱에 남았어요'; }
+  renderActions();
+  paintDrive();
+}
+function paintDrive() {
+  const moving = ['depart', 'playing'].includes(st.scene) && !st.stopped;
+  $('#gear').innerHTML = ['P', 'R', 'N', 'D'].map((g) => (g === (moving ? 'D' : 'P') ? `<b>${g}</b>` : `<span>${g}</span>`)).join('');
+  $('#drive-state').textContent = ['depart', 'playing'].includes(st.scene) ? (st.stopped ? '정차 중' : '주행 중') : '';
+  paintZones();
+}
+
+function goRegister() {
+  stopMusic(0.5); clearTimeout(departTimer); clearTimeout(arriveTimer);
+  st.registered = false; st.confirmed = {}; st.segs = []; st.cur = -1;
+  setScene('register');
+}
+function registerByApp() {
+  st.registered = true;
+  log('F1', '우리 가족 차로 등록 · 한 명이 하면 가족 모두 사용', true);
+  setScene('ready');
+}
+function closeDoor() {
+  stopMusic(0.5); clearTimeout(departTimer); clearTimeout(arriveTimer);
+  st.registered = true; st.confirmed = {};
+  setScene('boarding'); renderBoarding();
+  log('F2', '문이 닫혔어요 · 탄 사람의 색 동그라미가 흐릿하게 떠요');
+  log('F2', '첫 탑승만 각자 폰에 "차에 탔나요?"', true);
+  setTimeout(() => { if (st.scene === 'boarding' && !st.confirmed[st.driver]) confirmRider(st.driver, true); }, 900);
+}
+function confirmRider(id, auto) {
+  st.confirmed[id] = true; renderBoarding(); renderActions();
+  log('F2', auto ? `${PEOPLE[id].role}(운전자)는 묻지 않고 자동으로 띠에 들어가요` : `${subj(id)} 폰 알림에서 "탔어요" · 동그라미가 또렷해지고 띠에 들어가요`);
+  log('F2', `가족 홈에 ${PEOPLE[id].role} "타고 있음" 표시`, true);
+}
+function renderBoarding() {
+  $('#board-row').innerHTML = riding().map((id) => `<div class="rider${st.confirmed[id] ? ' on' : ''}"><div class="ball" style="background:radial-gradient(circle at 35% 30%, #fff 0%, ${PEOPLE[id].color} 55%, ${mixHex(PEOPLE[id].color, '#b9b2e6', 0.25)} 100%);${st.confirmed[id] ? `box-shadow:0 18px 50px ${rgba(PEOPLE[id].color, 0.55)}` : ''}"></div><div>${PEOPLE[id].role}</div><div class="sub">${st.confirmed[id] ? (id === st.driver ? '운전석' : id === st.passenger ? '조수석' : '뒷자리') : '확인 중'}</div></div>`).join('');
+}
+function depart() {
+  riding().forEach((id) => { if (!st.confirmed[id]) st.confirmed[id] = true; });
+  ensureCtx(); // unlock audio inside the click
+  buildTrip();
+  st.stopped = false; $('#t-stopped').checked = false;
+  setScene('depart');
+  renderBand();
+  const fd1 = $('#firstday-2');
+  fd1.hidden = !st.firstDay; fd1.textContent = '오늘은 가족이 돌아가며 노래의 주인공이 돼요';
+  log('F3', `출발 · 도착까지 ${total()}분, 사람별 구간으로 나뉜 띠`);
+  log('F3', `구간 순서는 차가 짜요 · 첫 구간은 ${andJoin(st.segs[0].owners)} (랜덤)`);
+  log('F3', st.firstDay ? '첫날이라 섞인 칸은 없어요' : '섞인 칸 = 둘의 노래 · 가족의 노래가 나오는 구간');
+  if (st.firstDay) log('F3', '"오늘은 가족이 돌아가며 노래의 주인공이 돼요" · 다음 이동부터는 안 나와요');
+  clearTimeout(departTimer);
+  departTimer = setTimeout(play, 4200);
+}
+function play() {
+  clearTimeout(departTimer);
+  if (!st.segs.length) { riding().forEach((id) => { st.confirmed[id] = true; }); buildTrip(); }
+  $('#firstday-2').hidden = true;
+  setScene('playing');
+  enterSong(segAt(st.elapsed));
+  showSong(st.cur, true);
+  startMusic();
+}
+function arrive() {
+  clearTimeout(departTimer);
+  if (!st.segs.length) { riding().forEach((id) => { st.confirmed[id] = true; }); buildTrip(); }
+  stopMusic(2);
+  st.like = null;
+  const ours = st.segs.filter((s) => new Set([...s.owners, ...s.likedBy]).size >= 2).length;
+  $('#arrive-count').textContent = st.firstDay && ours <= 1 ? (ours ? '우리 가족의 첫 노래' : '오늘 함께 들은 노래') : `우리 가족의 노래 ${ours}곡`;
+  $('#arrive-who').textContent = `오늘 탄 사람 · ${confirmedRiders().map((id) => PEOPLE[id].role).join(' · ')}`;
+  $('#arrive-t').style.opacity = 1;
+  st.arriveT0 = st.t;
+  setScene('arrive');
+  log('F8', '시동을 껐어요 · 오늘 탄 사람들의 색이 섞인 원, 몇 초 뒤 꺼짐');
+  log('F8', '두 사람 이상이 좋다고 한 곡이 우리 가족의 노래 · 그날 앱 홈에서 가족 색이 서로 물어요', true);
+  log('F8', '이 장면이 그대로 앱의 "오늘의 이동"(A13)으로 남아요', true);
+  clearTimeout(arriveTimer);
+  arriveTimer = setTimeout(() => { $('#arrive-t').style.opacity = 0; }, 6500);
+  setTimeout(() => { if (st.scene === 'arrive') setScene('off'); }, 8200);
+}
+
+/* ---------- presenter actions ---------- */
+function act(code, label, sub, fn) {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'act';
+  b.innerHTML = `<span class="code">${code}</span><span></span>`;
+  b.lastChild.textContent = label;
+  if (sub) { const s = document.createElement('small'); s.textContent = sub; b.append(s); }
+  b.addEventListener('click', fn);
+  return b;
+}
+function renderActions() {
+  const box = $('#acts'); box.innerHTML = '';
+  const add = (...a) => box.append(act(...a));
+  switch (st.scene) {
+    case 'register': add('F1', '가족 중 한 명이 앱으로 찍기', '이 차에서 처음 켰을 때, 차마다 한 번', registerByApp); break;
+    case 'ready': case 'off': add('F2', '문 닫기', '누가 탔는지 알아보기 시작', closeDoor); break;
+    case 'boarding':
+      riding().filter((id) => id !== st.driver && !st.confirmed[id]).forEach((id) => add('F2', `${PEOPLE[id].role} · 폰 알림에서 "탔어요"`, '첫 탑승만', () => confirmRider(id)));
+      add('F3', '출발', '확인 안 된 사람도 함께 출발', depart);
+      break;
+    case 'depart': add('F4', '바로 재생', '띠가 자리를 잡으면 자동으로 시작해요', play); break;
+    case 'playing':
+      if (confirmedRiders().includes(st.passenger)) add('F5', '조수석 · 좋다 누르기', '화면 오른쪽 끝을 눌러도 돼요', () => like(st.passenger, 'right', '조수석에서 좋다를 눌렀어요'));
+      add('F5', '운전석 · 핸들 버튼', '운전 중에도 돼요', () => like(st.driver, 'left', '핸들 버튼으로 좋다를 눌렀어요'));
+      add('F5', '"에코노드, 좋다"', '운전자가 말로', () => like(st.driver, 'left', '"에코노드, 좋다"라고 말했어요'));
+      add('F7', '"에코노드, 이 노래 별로야"', '누구든 말로', nope);
+      if (!st.sentDone) add('F6', '아들이 앱으로 노래 보냄', '차 밖의 가족', songArrives);
+      add('F4', '다음 곡으로 건너뛰기', '프로토타입 시간 줄이기', () => { st.elapsed = segStart(st.cur + 1) + 0.001; });
+      add('F8', '시동 끄기', '도착', arrive);
+      break;
+    case 'arrive': add('F1', '처음부터 다시', '', goRegister); break;
+  }
+  if (st.scene !== 'register' && st.scene !== 'arrive') box.append(act('F1', '처음부터 다시', '', goRegister));
+}
+document.querySelectorAll('#flow button').forEach((b) => b.addEventListener('click', () => {
+  const go = b.dataset.go;
+  if (go === 'register') goRegister();
+  else if (go === 'boarding') closeDoor();
+  else if (go === 'depart') { clearTimeout(arriveTimer); stopMusic(0.3); depart(); }
+  else if (go === 'playing') { if (st.scene !== 'playing') { if (!st.segs.length || st.scene === 'arrive' || st.scene === 'off') { st.segs = []; st.elapsed = 0; } play(); } }
+  else if (go === 'arrive') arrive();
+}));
+$('#t-first').addEventListener('change', (e) => { st.firstDay = e.target.checked; log('—', st.firstDay ? '첫날로 바꿨어요 · 다음 출발부터 적용' : '기록이 쌓인 날로 바꿨어요 · 다음 출발부터 적용'); });
+$('#t-alone').addEventListener('change', (e) => { st.alone = e.target.checked; log('—', st.alone ? '아빠 혼자 탄 날 · 다음 문 닫기부터 적용' : '셋이 탄 날 · 다음 문 닫기부터 적용'); if (st.scene === 'boarding') { renderBoarding(); renderActions(); } });
+$('#t-stopped').addEventListener('change', (e) => { st.stopped = e.target.checked; paintDrive(); });
+$('#t-read').addEventListener('change', (e) => { st.readAloud = e.target.checked; if (st.readAloud && st.scene === 'playing' && speak($('#np-line').textContent)) $('#np-line-wrap').classList.add('speaking'); });
+
+/* ---------- scaling & loop ---------- */
+function fit() {
+  const w = $('#wrap').clientWidth, sc = w / W;
+  $('#screen').style.transform = `scale(${sc})`;
+  const k = Math.min(2.2, sc * Math.min(2, window.devicePixelRatio || 1));
+  cv.width = Math.round(W * k); cv.height = Math.round(H * k);
+  ctx.setTransform(k, 0, 0, k, 0, 0);
+}
+new ResizeObserver(fit).observe($('#wrap'));
+fit();
+
+function clock() {
+  const d = new Date(), s = `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
+  $('#clock').textContent = s; $('#ready-clock').textContent = s;
+}
+clock(); setInterval(clock, 10000);
+
+let last = performance.now(), zoneTick = 0;
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  st.t += dt;
+  analyze(dt);
+  if (st.scene === 'playing') {
+    st.elapsed += dt * MIN_PER_SEC;
+    if (st.elapsed >= total()) { arrive(); }
+    else {
+      const i = segAt(st.elapsed);
+      if (i !== st.cur) { enterSong(i); renderActions(); }
+      if (st.like && likeProgress() >= 1) finishLike();
+      if (++zoneTick % 3 === 0) { paintZones(); updateBandLive(); }
+    }
+  }
+  drawFrame();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+setScene('register');
+log('F1', 'ECHO NOD를 이 차에서 처음 켰어요 · 가운데 큰 QR 코드');
+})();
+</script>
+<!-- artifact:body-end -->
+</body>
+</html>

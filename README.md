@@ -33,7 +33,8 @@ Zero-install starter for live **face + hand tracking in the browser** using p5.j
     ├── [03-mouth-controls-tone](examples/03-mouth-controls-tone/)
     ├── [04-two-hands-stretch-image](examples/04-two-hands-stretch-image/)
     ├── [05-master-controls](examples/05-master-controls/)      live data inspector + landmark indices
-    └── [06-data-flow-graph](examples/06-data-flow-graph/)      TouchDesigner-style pipeline visualiser
+    ├── [06-data-flow-graph](examples/06-data-flow-graph/)      TouchDesigner-style pipeline visualiser
+    └── [07-sound-bloom](examples/07-sound-bloom/)            audio-reactive radial visualiser (no camera)
 ```
 
 Each example folder is self-contained — open its `index.html` directly.

@@ -14,6 +14,11 @@ While a song plays, the sound-bloom jelly (example 07) fills the screen in the s
 | F7 | 별로 — no visible change; skips only when riding alone | "에코노드, 이 노래 별로야" |
 | F8 | 도착 — mixed circle of today's riders and the family-song count, then off | "시동 끄기" |
 
-The panel's 그러면 column logs each consequence, marking phone-app hand-offs with 앱.
+The page shows only the car screen. Drive it by tapping: the QR (F1), the screen (close the door), each rider circle (F2), and the two 좋다 ends (F5).
+Everyone confirmed → it departs and plays on its own; the son's song arrives during the second song; the car arrives at the end.
+
+Presenter keys: `L` passenger 좋다 · `K` wheel button · `V` "에코노드, 좋다" · `N` "별로야" · `S` son sends a song · `→` next song ·
+`P` stopped/driving · `F` first day · `A` dad alone · `R` read the line aloud · `M` mute · `1`–`5` jump to F1/F2/F3/F4/F8 ·
+`H` shows the hidden control panel (its 그러면 column logs each consequence, marking phone-app hand-offs with 앱). Drop an audio file on the page to use its sound.
 Sound is a generated demo beat (each song only changes its speed); load your own file to drive the visuals with it.
 Song titles are example data.

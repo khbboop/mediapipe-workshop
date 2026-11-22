@@ -32,7 +32,9 @@ body {
   margin: 0; background: var(--page); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.5;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-.page { max-width: 1240px; margin: 0 auto; padding-block: 36px 56px; display: grid; gap: 28px; }
+html, body { height: 100%; }
+body.cabin { background: radial-gradient(ellipse at 50% 40%, #2a2a31 0%, #121216 70%); overflow: hidden; }
+.page { height: 100%; display: grid; place-items: center; padding-block: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px)); }
 .eyebrow { font-size: 12px; letter-spacing: .28em; color: var(--accent); text-transform: uppercase; }
 h1 { margin: 6px 0 6px; font-size: 30px; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
 .lede { margin: 0; color: var(--muted); max-width: 70ch; }
@@ -42,10 +44,8 @@ h1 { margin: 6px 0 6px; font-size: 30px; font-weight: 600; letter-spacing: -0.01
 .rule { border: 0; border-top: 2px solid var(--ink); margin: 0; }
 
 /* ---------- the car display ---------- */
-.dash {
-  background: linear-gradient(180deg, #e7e6ec, #d9d8df); border-radius: 28px; padding: 26px 26px 34px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
-}
+.dash { width: var(--fitw, 100%); }
+.wrap { cursor: default; }
 .bezel { background: var(--bezel); border-radius: 26px; padding: 12px; box-shadow: 0 30px 60px rgba(30, 28, 45, .25), inset 0 1px 0 rgba(255,255,255,.08); }
 .wrap { position: relative; width: 100%; aspect-ratio: 2.6 / 1; border-radius: 16px; overflow: hidden; background: var(--scr); }
 #screen { position: absolute; left: 0; top: 0; width: 1560px; height: 600px; transform-origin: 0 0; color: var(--scr-ink); font-family: var(--font); }
@@ -72,12 +72,12 @@ h1 { margin: 6px 0 6px; font-size: 30px; font-weight: 600; letter-spacing: -0.01
 .huge-clock { font-size: 120px; font-weight: 300; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1; }
 
 /* F1 */
-.qr-card { width: 276px; height: 276px; border-radius: 30px; background: #fff; display: grid; place-items: center; box-shadow: 0 18px 50px rgba(120, 110, 170, .18); }
+.qr-card { cursor: pointer; width: 276px; height: 276px; border-radius: 30px; background: #fff; display: grid; place-items: center; box-shadow: 0 18px 50px rgba(120, 110, 170, .18); }
 .qr-card canvas { width: 220px; height: 220px; }
 
 /* F2 */
 .board-row { display: flex; gap: 70px; justify-content: center; }
-.rider { display: grid; justify-items: center; gap: 16px; font-size: 22px; color: var(--scr-muted); transition: color .6s; }
+.rider { cursor: pointer; display: grid; justify-items: center; gap: 16px; font-size: 22px; color: var(--scr-muted); transition: color .6s; }
 .rider .ball { width: 132px; height: 132px; border-radius: 50%; filter: blur(14px); opacity: .45; transform: scale(.9); transition: filter .9s, opacity .9s, transform .9s, box-shadow .9s; }
 .rider.on { color: var(--scr-ink); }
 .rider.on .ball { filter: blur(0); opacity: 1; transform: scale(1); }
@@ -138,7 +138,10 @@ h1 { margin: 6px 0 6px; font-size: 30px; font-weight: 600; letter-spacing: -0.01
 .arrive-t .big-t { font-size: 44px; }
 
 /* ---------- presenter panel ---------- */
-.panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1.4fr); gap: 0; border-top: 1px solid var(--ink); }
+.panel {
+  position: fixed; left: 50%; bottom: max(12px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 50;
+  width: min(1100px, calc(100% - 32px)); max-height: 70vh; overflow: auto; background: var(--page); border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1.4fr); gap: 0; border-top: 1px solid var(--ink); }
 .col { padding: 16px 18px 20px; display: grid; align-content: start; gap: 12px; min-width: 0; }
 .col + .col { border-left: 1px solid var(--line); }
 .col h2 { margin: 0; font-size: 12px; font-weight: 500; color: var(--muted); }
@@ -172,15 +175,14 @@ h1 { margin: 6px 0 6px; font-size: 30px; font-weight: 600; letter-spacing: -0.01
 </style>
 <!-- artifact:head-end -->
 </head>
-<body>
+<body class="cabin">
 <!-- artifact:body-start -->
 <div class="page">
-  <header>
+  <header hidden>
     <div class="eyebrow">ECHO NOD · Front display prototype</div>
     <h1>앞 디스플레이, 노래가 흐를 때</h1>
     <p class="lede">기능 명세 F1–F8을 그대로 움직여 보는 화면이에요. 아래 패널의 버튼은 차 안팎에서 일어나는 일(문 닫기, 폰 알림, 말하기)을 대신 눌러 주는 것이고, 화면의 양 끝 <b>좋다</b>는 직접 누를 수 있어요. <span class="chip app">앱</span> 은 폰 앱으로 이어지는 지점, <span class="chip tbd">미정</span> 은 아직 정하지 않은 부분이에요.</p>
   </header>
-  <hr class="rule">
 
   <section class="dash" aria-label="앞 디스플레이">
     <div class="bezel">
@@ -221,7 +223,7 @@ h1 { margin: 6px 0 6px; font-size: 30px; font-weight: 600; letter-spacing: -0.01
           <!-- F2 -->
           <div class="layer" id="sc-boarding" hidden>
             <div class="center-col" style="top:118px">
-              <div class="soft-t">누가 탔는지 보고 있어요</div>
+              <div class="soft-t">누가 탔는지 보고 있어요 · 폰에서 "탔어요"를 누르면 또렷해져요</div>
             </div>
             <div class="board-row" id="board-row" style="position:absolute;left:0;right:0;top:206px"></div>
           </div>
@@ -282,10 +284,10 @@ h1 { margin: 6px 0 6px; font-size: 30px; font-weight: 600; letter-spacing: -0.01
         </div>
       </div>
     </div>
-    <div class="dash-caption"><span>가로 2.6 : 1 · 모두가 함께 보는 화면 · 양 끝은 운전석 쪽과 조수석 쪽의 반응 영역</span><span id="scene-name">F1 차 등록</span></div>
+    <div class="dash-caption" hidden><span>가로 2.6 : 1 · 모두가 함께 보는 화면 · 양 끝은 운전석 쪽과 조수석 쪽의 반응 영역</span><span id="scene-name">F1 차 등록</span></div>
   </section>
 
-  <section class="panel" aria-label="프로토타입 조작">
+  <section class="panel" id="panel" aria-label="프로토타입 조작" hidden>
     <div class="col">
       <h2>흐름</h2>
       <ol class="flow" id="flow">
@@ -852,13 +854,13 @@ function closeDoor() {
   log('F2', '첫 탑승만 각자 폰에 "차에 탔나요?"', true);
   setTimeout(() => { if (st.scene === 'boarding' && !st.confirmed[st.driver]) confirmRider(st.driver, true); }, 900);
 }
-function confirmRider(id, auto) {
+let confirmRider = function (id, auto) {
   st.confirmed[id] = true; renderBoarding(); renderActions();
   log('F2', auto ? `${PEOPLE[id].role}(운전자)는 묻지 않고 자동으로 띠에 들어가요` : `${subj(id)} 폰 알림에서 "탔어요" · 동그라미가 또렷해지고 띠에 들어가요`);
   log('F2', `가족 홈에 ${PEOPLE[id].role} "타고 있음" 표시`, true);
-}
+};
 function renderBoarding() {
-  $('#board-row').innerHTML = riding().map((id) => `<div class="rider${st.confirmed[id] ? ' on' : ''}"><div class="ball" style="background:radial-gradient(circle at 35% 30%, #fff 0%, ${PEOPLE[id].color} 55%, ${mixHex(PEOPLE[id].color, '#b9b2e6', 0.25)} 100%);${st.confirmed[id] ? `box-shadow:0 18px 50px ${rgba(PEOPLE[id].color, 0.55)}` : ''}"></div><div>${PEOPLE[id].role}</div><div class="sub">${st.confirmed[id] ? (id === st.driver ? '운전석' : id === st.passenger ? '조수석' : '뒷자리') : '확인 중'}</div></div>`).join('');
+  $('#board-row').innerHTML = riding().map((id) => `<div class="rider${st.confirmed[id] ? ' on' : ''}" data-id="${id}"><div class="ball" style="background:radial-gradient(circle at 35% 30%, #fff 0%, ${PEOPLE[id].color} 55%, ${mixHex(PEOPLE[id].color, '#b9b2e6', 0.25)} 100%);${st.confirmed[id] ? `box-shadow:0 18px 50px ${rgba(PEOPLE[id].color, 0.55)}` : ''}"></div><div>${PEOPLE[id].role}</div><div class="sub">${st.confirmed[id] ? (id === st.driver ? '운전석' : id === st.passenger ? '조수석' : '뒷자리') : '확인 중'}</div></div>`).join('');
 }
 function depart() {
   riding().forEach((id) => { if (!st.confirmed[id]) st.confirmed[id] = true; });
@@ -952,6 +954,13 @@ $('#t-stopped').addEventListener('change', (e) => { st.stopped = e.target.checke
 $('#t-read').addEventListener('change', (e) => { st.readAloud = e.target.checked; if (st.readAloud && st.scene === 'playing' && speak($('#np-line').textContent)) $('#np-line-wrap').classList.add('speaking'); });
 
 /* ---------- scaling & loop ---------- */
+function fitDash() {
+  const pad = 32, bez = 24;
+  const w = Math.min(window.innerWidth - pad, (window.innerHeight - pad - bez) * 2.6 + bez);
+  document.documentElement.style.setProperty('--fitw', `${Math.max(280, w)}px`);
+}
+window.addEventListener('resize', fitDash);
+fitDash();
 function fit() {
   const w = $('#wrap').clientWidth, sc = w / W;
   $('#screen').style.transform = `scale(${sc})`;
@@ -987,6 +996,61 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
+
+/* ---------- screen-only controls ---------- */
+// Taps on the screen stand in for what happens around it.
+$('.qr-card').addEventListener('click', (e) => { e.stopPropagation(); ensureCtx(); registerByApp(); });
+$('#board-row').addEventListener('click', (e) => {
+  e.stopPropagation(); ensureCtx();
+  const el = e.target.closest('.rider'); if (!el) return;
+  const id = el.dataset.id;
+  if (id && !st.confirmed[id]) confirmRider(id);
+});
+$('#wrap').addEventListener('click', () => {
+  ensureCtx();
+  if (st.scene === 'ready' || st.scene === 'off') closeDoor();
+  else if (st.scene === 'depart') play();
+});
+// Everyone confirmed → leave on its own.
+let autoDepart = 0;
+const _confirm = confirmRider;
+confirmRider = function (id, auto) {
+  _confirm(id, auto);
+  if (st.scene === 'boarding' && riding().every((r) => st.confirmed[r])) { clearTimeout(autoDepart); autoDepart = setTimeout(() => { if (st.scene === 'boarding') depart(); }, 1600); }
+};
+// A song from the son arrives on its own, a little into the second song.
+let lastSceneSong = -1, sendAt = 0;
+setInterval(() => {
+  if (st.scene !== 'playing' || st.sentDone) return;
+  if (st.cur === 1 && lastSceneSong !== 1) { lastSceneSong = 1; sendAt = st.t + 9; }
+  if (lastSceneSong === 1 && sendAt && st.t > sendAt && !st.alone) { sendAt = 0; songArrives(); }
+}, 500);
+// Drop an audio file anywhere to drive the visuals with it.
+window.addEventListener('dragover', (e) => e.preventDefault());
+window.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const f = e.dataTransfer && e.dataTransfer.files[0]; if (!f) return;
+  const dt = new DataTransfer(); dt.items.add(f);
+  const inp = $('#audiofile'); inp.files = dt.files; inp.dispatchEvent(new Event('change'));
+});
+// Presenter keys (not shown on screen). H toggles the control panel.
+const flip = (sel) => { const el = $(sel); el.checked = !el.checked; el.dispatchEvent(new Event('change')); };
+window.addEventListener('keydown', (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey || e.target.matches('input')) return;
+  ensureCtx();
+  const k = e.key.toLowerCase();
+  const map = {
+    h: () => { $('#panel').hidden = !$('#panel').hidden; },
+    1: goRegister, 2: closeDoor, 3: () => { stopMusic(0.3); depart(); }, 4: () => { if (st.scene !== 'playing') { if (st.scene === 'arrive' || st.scene === 'off') { st.segs = []; st.elapsed = 0; } play(); } }, 5: arrive,
+    l: () => like(st.passenger, 'right', '조수석에서 좋다를 눌렀어요'),
+    k: () => like(st.driver, 'left', '핸들 버튼으로 좋다를 눌렀어요'),
+    v: () => like(st.driver, 'left', '"에코노드, 좋다"라고 말했어요'),
+    n: nope, s: songArrives,
+    arrowright: () => { if (st.scene === 'playing') st.elapsed = segStart(st.cur + 1) + 0.001; },
+    p: () => flip('#t-stopped'), f: () => flip('#t-first'), a: () => flip('#t-alone'), r: () => flip('#t-read'), m: () => flip('#t-mute'),
+  };
+  if (map[k]) { e.preventDefault(); map[k](); }
+});
 
 setScene('register');
 log('F1', 'ECHO NOD를 이 차에서 처음 켰어요 · 가운데 큰 QR 코드');

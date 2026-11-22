@@ -139,7 +139,7 @@ button:focus-visible, .filebtn:focus-within, input:focus-visible { outline: 2px 
 <!-- artifact:body-start -->
 <header class="top">
   <h1>Sound Bloom</h1>
-  <span class="status" id="status">미리보기 · 음악 파일을 넣거나 데모 비트를 재생하세요</span>
+  <span class="status" id="status">미리보기 · 음악 파일을 넣거나, 다른 탭에서 튼 곡을 연결하세요</span>
 </header>
 
 <main id="stage">
@@ -159,6 +159,8 @@ button:focus-visible, .filebtn:focus-within, input:focus-visible { outline: 2px 
       <input id="file" type="file" accept="audio/*,video/*">
     </label>
     <button id="demo" type="button">데모 비트</button>
+    <button id="tab" type="button" title="유튜브 같은 다른 탭에서 재생 중인 곡을 실시간으로 듣습니다">다른 탭 소리</button>
+    <button id="mic" type="button" title="스피커로 틀어둔 곡을 마이크로 듣습니다">마이크</button>
     <button id="play" type="button" aria-label="재생">▶</button>
     <div class="seekgrp">
       <span class="time" id="t-cur">0:00</span>
@@ -277,7 +279,8 @@ const palette = () => PALETTES[state.pal][theme().dark ? 'dark' : 'light'];
 /* ---------- audio ---------- */
 let actx = null, analyser, outGain, recDest, freqData, timeData;
 let mediaEl = null, mediaSrc = null, demoBuf = null, demoSrc = null, demoStart = 0;
-let source = null; // 'file' | 'demo'
+let source = null; // 'file' | 'demo' | 'live'
+let liveStream = null, liveSrc = null, liveStart = 0;
 let playing = false;
 
 function ensureCtx() {
@@ -292,11 +295,68 @@ function ensureCtx() {
     analyser.connect(outGain);
     outGain.connect(actx.destination);
     recDest = actx.createMediaStreamDestination();
-    outGain.connect(recDest);
+    analyser.connect(recDest);
     freqData = new Uint8Array(analyser.frequencyBinCount);
     timeData = new Float32Array(analyser.fftSize);
   }
   if (actx.state === 'suspended') actx.resume();
+}
+
+function stopLive() {
+  if (liveStream) liveStream.getTracks().forEach((t) => t.stop());
+  if (liveSrc) liveSrc.disconnect();
+  liveStream = null; liveSrc = null;
+  if (outGain) outGain.gain.value = 1;
+}
+
+/* Live input: another tab's audio (screen-share picker → "share tab audio") or the microphone.
+   The sound itself already plays elsewhere, so the page only listens and stays silent. */
+async function connectLive(kind) {
+  ensureCtx();
+  const md = navigator.mediaDevices;
+  let s;
+  try {
+    if (kind === 'tab') {
+      if (!md || !md.getDisplayMedia) throw new Error('unsupported');
+      s = await md.getDisplayMedia({
+        video: true,
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+        selfBrowserSurface: 'exclude', systemAudio: 'include', preferCurrentTab: false,
+      });
+      if (!s.getAudioTracks().length) {
+        s.getTracks().forEach((t) => t.stop());
+        toast('소리가 연결되지 않았어요. 공유 창에서 "탭" 을 고르고 "탭 오디오도 공유" 를 켜주세요.');
+        return;
+      }
+    } else {
+      if (!md || !md.getUserMedia) throw new Error('unsupported');
+      s = await md.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    }
+  } catch (err) {
+    if (window.claude) toast('claude.ai 화면 안에서는 브라우저가 이 기능을 막아요. 페이지 파일을 받아 Chrome으로 열어주세요.');
+    else if (err && err.name === 'NotAllowedError') toast('공유를 취소했거나 권한이 막혀 있어요.');
+    else toast('이 브라우저에서는 실시간 소리를 연결할 수 없어요. Chrome이나 Edge에서 열어주세요.');
+    return;
+  }
+  if (mediaEl) mediaEl.pause();
+  stopDemo();
+  stopLive();
+  liveStream = s;
+  liveSrc = actx.createMediaStreamSource(new MediaStream(s.getAudioTracks()));
+  liveSrc.connect(analyser);
+  outGain.gain.value = 0; // don't replay the tab, and don't feed the mic back into the speakers
+  liveStart = actx.currentTime;
+  source = 'live';
+  state.name = kind === 'tab' ? '실시간 · 다른 탭의 소리' : '실시간 · 마이크';
+  state.duration = 60;
+  resetVisualState();
+  playing = true;
+  syncPlay();
+  s.getAudioTracks()[0].addEventListener('ended', () => {
+    if (liveStream !== s) return;
+    stopLive(); source = null; playing = false; state.name = ''; syncPlay();
+    if (rec) rec.stop();
+  });
 }
 
 function stopDemo() {
@@ -316,6 +376,7 @@ function loadFile(file) {
   }
   ensureCtx();
   stopDemo();
+  stopLive();
   if (!mediaEl) {
     mediaEl = new Audio();
     mediaEl.preload = 'auto';
@@ -337,6 +398,7 @@ async function playDemo() {
   ensureCtx();
   if (mediaEl) mediaEl.pause();
   stopDemo();
+  stopLive();
   if (!demoBuf) {
     $('#demo').textContent = '만드는 중…';
     demoBuf = await renderDemo(actx.sampleRate);
@@ -362,6 +424,9 @@ function togglePlay() {
   if (source === 'file') {
     if (mediaEl.paused) mediaEl.play().then(() => { playing = true; syncPlay(); });
     else { mediaEl.pause(); playing = false; syncPlay(); }
+  } else if (source === 'live') {
+    playing = !playing;
+    syncPlay();
   } else {
     if (playing) { actx.suspend(); playing = false; } else { actx.resume(); playing = true; }
     syncPlay();
@@ -372,7 +437,7 @@ function syncPlay() {
   $('#play').textContent = playing ? '❚❚' : '▶';
   $('#play').setAttribute('aria-label', playing ? '일시정지' : '재생');
   $('#seek').disabled = source !== 'file';
-  const st = source ? `${playing ? '재생 중' : '멈춤'} · ${state.name}` : '미리보기 · 음악 파일을 넣거나 데모 비트를 재생하세요';
+  const st = source ? `${playing ? (source === 'live' ? '듣는 중' : '재생 중') : '멈춤'} · ${state.name}` : '미리보기 · 음악 파일을 넣거나, 다른 탭에서 튼 곡을 연결하세요';
   $('#status').textContent = st;
 }
 
@@ -467,6 +532,8 @@ function analyze(dt) {
     if (source === 'file') {
       state.time = mediaEl.currentTime || 0;
       state.duration = mediaEl.duration || state.duration;
+    } else if (source === 'live') {
+      state.time = (actx.currentTime - liveStart) % 60;
     } else {
       state.time = (actx.currentTime - demoStart) % state.duration;
     }
@@ -879,7 +946,7 @@ function updateLegend() {
 let seeking = false;
 function updateTransport() {
   $('#t-cur').textContent = fmt(source ? state.time : 0);
-  $('#t-dur').textContent = fmt(source ? state.duration : 0);
+  $('#t-dur').textContent = source === 'live' ? 'LIVE' : fmt(source ? state.duration : 0);
   if (!seeking) $('#seek').value = source ? Math.round(state.progress * 1000) : 0;
 }
 
@@ -924,6 +991,8 @@ new MutationObserver(() => { themeCache = null; paintLegend(); }).observe(docume
 
 $('#file').addEventListener('change', (e) => { loadFile(e.target.files[0]); e.target.value = ''; });
 $('#demo').addEventListener('click', playDemo);
+$('#tab').addEventListener('click', () => connectLive('tab'));
+$('#mic').addEventListener('click', () => connectLive('mic'));
 $('#play').addEventListener('click', togglePlay);
 $('#seek').addEventListener('input', () => { seeking = true; });
 $('#seek').addEventListener('change', (e) => {

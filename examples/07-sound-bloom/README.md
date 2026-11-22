@@ -2,7 +2,7 @@
 
 Drop in a music file and watch colors push out of a circle in time with the beat and loudness. No camera needed.
 
-**Input:** an audio file (mp3, wav, m4a, …), or the built-in demo beat
+**Input:** an audio file (mp3, wav, m4a, …), live audio from another browser tab, the microphone, or the built-in demo beat
 **Mapping:** Web Audio `AnalyserNode` → 180 log-spaced frequency bins (30 Hz–16 kHz), 6 bands, RMS level, low-end spectral-flux beat detection
 **Output:** three radial looks on a canvas
 
@@ -11,6 +11,12 @@ Drop in a music file and watch colors push out of a circle in time with the beat
 | 스펙트럼 (spectrum) | one bar per frequency; inner colors = current sound, outer colors = recent peaks |
 | 블룸 (bloom) | one translucent blob per band, swelling with that band's energy |
 | 궤도 (orbit) | low/high contour hills on a ring; each beat launches dots and draws a chord to the previous beat |
+
+## Real songs, live
+- **다른 탭 소리**: play a song in another tab (e.g. YouTube), press the button, pick that tab in the share dialog and turn on *Share tab audio*. Chrome/Edge only. Some DRM streaming sites may come through silent.
+- **마이크**: play the song out loud on any device and let the mic listen.
+
+Both only listen; the page stays silent so nothing echoes. These need the page opened directly (served locally or as a file); the claude.ai artifact view blocks screen and mic access.
 
 ## Saving
 - **이미지 저장** renders a 2048 × 2048 PNG poster of the current frame.

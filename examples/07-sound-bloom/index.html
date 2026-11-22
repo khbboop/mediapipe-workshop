@@ -117,6 +117,15 @@ button:focus-visible, .filebtn:focus-within, input:focus-visible { outline: 2px 
 .sheet p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
 .sheet .row { justify-content: flex-end; }
 .sheet a.primary { text-decoration: none; border-radius: 999px; padding: 7px 14px; font-size: 13px; }
+#help {
+  position: fixed; inset: 0; background: color-mix(in srgb, var(--paper) 70%, transparent);
+  backdrop-filter: blur(8px); display: grid; place-items: center; z-index: 20;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+#help .sheet { width: min(440px, 100%); gap: 12px; padding: 18px; }
+#help strong { font-size: 16px; text-wrap: balance; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 13px; line-height: 1.5; }
+#help-note { color: var(--ink); }
 #toast {
   position: fixed; left: 50%; bottom: calc(140px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
   background: var(--ink); color: var(--paper); padding: 8px 14px; border-radius: 999px; font-size: 13px; z-index: 30;
@@ -195,6 +204,22 @@ button:focus-visible, .filebtn:focus-within, input:focus-visible { outline: 2px 
     <div class="row">
       <button id="ov-close" type="button">닫기</button>
       <a id="ov-dl" class="primary" href="#">저장</a>
+    </div>
+  </div>
+</div>
+<div id="help" class="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <strong id="help-title">실시간 소리는 파일로 연 페이지에서 돼요</strong>
+    <p>claude.ai 화면 안에서는 브라우저가 화면 공유와 마이크를 막아요. 이 페이지를 파일로 받아 Chrome에서 열면 "다른 탭 소리"와 "마이크"를 쓸 수 있어요.</p>
+    <ol class="steps">
+      <li>아래 <b>파일 받기</b>로 SoundBloom.html을 저장해요.</li>
+      <li>받은 파일을 Chrome으로 열어요(더블클릭).</li>
+      <li>다른 탭에서 유튜브로 곡을 틀고 <b>다른 탭 소리</b>를 눌러요. 그 탭을 고르고 <b>탭 오디오도 공유</b>를 켜요.</li>
+    </ol>
+    <p id="help-note" hidden></p>
+    <div class="row">
+      <button id="help-close" type="button">닫기</button>
+      <button id="help-dl" class="primary" type="button">파일 받기</button>
     </div>
   </div>
 </div>
@@ -333,7 +358,7 @@ async function connectLive(kind) {
       s = await md.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
     }
   } catch (err) {
-    if (window.claude) toast('claude.ai 화면 안에서는 브라우저가 이 기능을 막아요. 페이지 파일을 받아 Chrome으로 열어주세요.');
+    if (window.claude) showHelp();
     else if (err && err.name === 'NotAllowedError') toast('공유를 취소했거나 권한이 막혀 있어요.');
     else toast('이 브라우저에서는 실시간 소리를 연결할 수 없어요. Chrome이나 Edge에서 열어주세요.');
     return;
@@ -1057,6 +1082,34 @@ $('#ov-dl').addEventListener('click', async (e) => {
     toast('여기서는 저장할 수 없어요. 이미지나 영상을 우클릭해서 저장하세요.');
   }
 });
+// Inside claude.ai: hand the viewer the standalone page (published next to this one as SoundBloom.html).
+function showHelp() {
+  $('#help-note').hidden = true;
+  $('#help-dl').hidden = !dlCap;
+  if (!dlCap) {
+    $('#help-note').textContent = '여기서는 파일 받기를 쓸 수 없어요. 대화에서 받은 SoundBloom.html 파일을 Chrome으로 열어주세요.';
+    $('#help-note').hidden = false;
+  }
+  $('#help').hidden = false;
+  $('#help-close').focus();
+}
+$('#help-close').addEventListener('click', () => { $('#help').hidden = true; });
+$('#help').addEventListener('click', (e) => { if (e.target.id === 'help') $('#help').hidden = true; });
+$('#help-dl').addEventListener('click', async () => {
+  const note = $('#help-note');
+  try {
+    const res = await fetch('SoundBloom.html');
+    if (!res.ok) throw { code: 'missing' };
+    await dlCap.save({ filename: 'SoundBloom.html', data: await res.text() });
+    note.textContent = '받았어요. 다운로드 폴더에서 SoundBloom.html을 Chrome으로 열어주세요.';
+  } catch (err) {
+    if (err && err.code === 'declined') return;
+    note.textContent = '여기서는 파일을 받을 수 없어요. 대화에서 받은 SoundBloom.html 파일을 Chrome으로 열어주세요.';
+  }
+  note.hidden = false;
+});
+window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { $('#help').hidden = true; } });
+
 $('#ov-close').addEventListener('click', () => { $('#overlay').hidden = true; const v = $('#ov-media video'); if (v) v.pause(); });
 $('#overlay').addEventListener('click', (e) => { if (e.target.id === 'overlay') $('#ov-close').click(); });
 

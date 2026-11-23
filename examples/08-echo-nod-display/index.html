@@ -217,13 +217,13 @@ body {
 #sc-player.l-send #send-panel { opacity: 1; transform: none; pointer-events: auto; }
 
 /* ---------- sent / preference ---------- */
-#sc-sent .wrapc { position: absolute; left: 0; right: 0; top: 150px; display: grid; justify-items: center; text-align: center; }
+#sc-sent .wrapc { position: absolute; left: 0; right: 0; top: 84px; bottom: 24px; display: grid; justify-items: center; align-content: center; text-align: center; }
 .checkc { width: 74px; height: 74px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 10px 30px rgba(150,140,200,.25); color: var(--accent-deep); }
 .checkc svg { width: 38px; height: 38px; }
-#sc-sent .h { margin-top: 26px; text-shadow: 0 0 18px rgba(185,163,238,.55); }
-#sent-chips { display: flex; gap: 70px; margin-top: 60px; }
+#sc-sent .h { margin-top: 20px; text-shadow: 0 0 18px rgba(185,163,238,.55); }
+#sent-chips { display: flex; gap: 70px; margin-top: 30px; }
 #sent-chips .chip-p { cursor: default; }
-.ghostpill { margin-top: 44px; width: 480px; height: 62px; border-radius: 999px; background: rgba(255,255,255,.55); color: var(--ink2); display: grid; place-items: center; font-size: 16px; filter: blur(3px); box-shadow: 0 10px 30px rgba(150,140,200,.12); }
+.ghostpill { margin-top: 26px; width: 480px; height: 62px; border-radius: 999px; background: rgba(255,255,255,.55); color: var(--ink2); display: grid; place-items: center; font-size: 16px; filter: blur(3px); box-shadow: 0 10px 30px rgba(150,140,200,.12); }
 #pref-card { left: 72px; right: 72px; top: 246px; height: 290px; padding: 50px 56px 30px; }
 .pref-row { display: flex; align-items: center; gap: 30px; }
 .pref-icon { width: 84px; height: 84px; border-radius: 50%; background: #efecf7; display: grid; place-items: center; color: var(--ink2); flex: none; }
@@ -470,7 +470,7 @@ body {
             <p class="sub">가족에게 세진님의 음악과 메시지를 보냈어요.</p>
             <div id="sent-chips"></div>
             <div class="ghostpill" id="sent-msg"></div>
-            <button class="btn go" id="sent-ok" type="button" style="margin-top:30px">확인</button>
+            <button class="btn go" id="sent-ok" type="button" style="margin-top:24px">확인</button>
           </div>
         </section>
 

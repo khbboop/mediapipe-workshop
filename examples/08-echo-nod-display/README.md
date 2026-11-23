@@ -22,5 +22,5 @@ Screens follow the spec order, and **only boarding confirmation (F2) moves on it
 The home icon always returns to the home screen (during a ride it offers "재생 화면으로"). The paper-plane icon opens
 노래 건네기 (pick family, add a message, 음악 건네기).
 
-Presenter keys (`H`): Space play/pause · ←/→ songs · `L` F5 · `R` F6 · `N` F7 · `S` send · `E` F8 · `0` home.
+Presenter keys (`H`): Space = next screen / next step · P play/pause · ←/→ songs · `L` F5 · `R` F6 · `N` F7 · `S` send · `E` F8 · `0` home.
 Drop an audio file on the page to drive the light with it. Covers are abstract placeholders; song titles are example data.

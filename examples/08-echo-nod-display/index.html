@@ -500,7 +500,8 @@ body {
 
         <div class="toast" id="toast" hidden></div>
         <div id="keys" hidden>
-          <div><b>Space</b>재생 / 일시정지</div>
+          <div><b>Space</b>다음 화면 / 다음 단계</div>
+          <div><b>P</b>재생 / 일시정지</div>
           <div><b>← →</b>이전 곡 / 다음 곡</div>
           <div><b>L</b>F5 조수석 좋다</div>
           <div><b>R</b>F6 노래 도착</div>
@@ -1128,11 +1129,34 @@ $('#btn-back').addEventListener('click', (e) => {
 });
 $('#btn-home').addEventListener('click', (e) => { e.stopPropagation(); if (st.registered) showHome(); });
 $('#wrap').addEventListener('click', () => { ensureCtx(); if (st.scene === 'start') powerOn(); });
+// Space = "next": press whatever moves the story forward on this screen (the glowing control or the main button)
+function advance() {
+  const click = (sel) => { const el = $(sel); if (el && !el.hidden && !el.disabled) el.click(); };
+  switch (st.scene) {
+    case 'start': powerOn(); break;
+    case 'register': st.registered ? click('#reg-next') : scanQR(); break;
+    case 'home': click('#h-btn'); break;
+    case 'board': RIDERS.forEach((id) => { if (st.board[id] !== 2) confirmRider(id); }); break;
+    case 'together': click('#tog-next'); break;
+    case 'mix': click('#mix-next'); break;
+    case 'journey': click('#jr-next'); break;
+    case 'pref': click('#pref-ok'); break;
+    case 'sent': click('#sent-ok'); break;
+    case 'arrive': click('#arr-ok'); break;
+    case 'player':
+      if (!$('#voice').hidden) { click('#v-nope'); break; }             // F7
+      if (st.layout === 'react') { if (!st.mixing) click('#rc-ok'); break; } // wait for the colors to finish mixing
+      if (st.layout === 'recv') { click('#btn-recv-add'); break; }
+      if (st.layout === 'send') { click('#send-go'); break; }
+      click(['#btn-heart', '#btn-next', '#btn-mic', '#btn-power'][Math.min(st.step, 3)]);
+      break;
+  }
+}
 window.addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey || e.target.matches('input')) return;
   const k = e.key.toLowerCase();
   const map = {
-    ' ': togglePause, arrowright: () => st.scene === 'player' && jump(st.cur + 1), arrowleft: () => st.scene === 'player' && jump(st.cur - 1),
+    ' ': advance, p: togglePause, arrowright: () => st.scene === 'player' && jump(st.cur + 1), arrowleft: () => st.scene === 'player' && jump(st.cur - 1),
     l: () => like('mom'), r: received, n: dislike, s: openSend, e: arrive, 0: () => (st.registered ? showHome() : null),
     h: () => { $('#keys').hidden = !$('#keys').hidden; },
   };

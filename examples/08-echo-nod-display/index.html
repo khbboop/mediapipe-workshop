@@ -114,7 +114,7 @@ body {
 .foot .dotl::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-right: 10px; vertical-align: 1px; }
 
 /* ---------- mix ---------- */
-.search { position: absolute; left: 460px; width: 620px; top: 196px; height: 58px; border-radius: 999px; background: rgba(255,255,255,.85); box-shadow: 0 10px 30px rgba(150,140,200,.12); display: flex; align-items: center; gap: 18px; padding: 0 30px; font-size: 15px; color: var(--muted); }
+.search { position: absolute; left: 460px; width: 620px; top: 214px; height: 54px; border-radius: 999px; background: rgba(255,255,255,.85); box-shadow: 0 10px 30px rgba(150,140,200,.12); display: flex; align-items: center; gap: 18px; padding: 0 30px; font-size: 15px; color: var(--muted); }
 .search b { font-weight: 400; color: var(--ink2); }
 .plist { top: 290px; width: 380px; height: 360px; padding: 28px 30px; display: grid; align-content: start; gap: 14px; }
 #pl-mom { left: 210px; } #pl-dad { right: 210px; }
@@ -123,8 +123,8 @@ body {
 .row { display: flex; align-items: center; gap: 16px; transition: transform .7s ease, opacity .7s ease; }
 .row b { display: block; font-size: 16px; font-weight: 500; }
 .row small { font-size: 13px; color: var(--muted); }
-.mixing .row { opacity: .55; }
-#pl-mom.mixing .row { transform: translateX(26px); } #pl-dad.mixing .row { transform: translateX(-26px); }
+.mixing .row { opacity: .6; }
+/* mixing: rows only soften; they stay aligned with the card heading */
 .mix-core { position: absolute; left: 770px; top: 440px; transform: translate(-50%, -50%); text-align: center; }
 .mix-core .glow { width: 300px; height: 220px; left: 50%; top: 50%; transform: translate(-50%, -50%); background: radial-gradient(circle at 35% 50%, var(--mom), transparent 60%), radial-gradient(circle at 68% 50%, var(--dad), transparent 60%); animation: pulse 2.4s ease-in-out infinite; }
 @keyframes pulse { 50% { transform: translate(-50%, -50%) scale(1.12); opacity: .8; } }

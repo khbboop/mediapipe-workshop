@@ -63,7 +63,7 @@ body {
 .cap { font-size: 15px; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
 .glow { position: absolute; border-radius: 50%; filter: blur(30px); }
 .btn { font-family: inherit; font-size: 20px; color: var(--ink); border: 1px solid rgba(255,255,255,.95); background: linear-gradient(180deg, #f1eefb, #e6e1f7); border-radius: 999px; padding: 16px 34px; cursor: pointer; box-shadow: 0 10px 26px rgba(150,140,200,.18); }
-.btn:disabled { opacity: .45; cursor: default; }
+.btn:disabled { opacity: .72; cursor: default; }
 .cover { position: relative; border-radius: 18px; overflow: hidden; flex: none; }
 .cover i { position: absolute; left: 50%; top: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
 
@@ -132,24 +132,27 @@ body {
 .mix-core small { position: relative; font-size: 13px; color: var(--ink2); }
 
 /* ---------- player family ---------- */
-#pcard { left: 300px; top: 128px; width: 400px; height: 484px; border-radius: 40px; padding: 38px 40px 30px; display: grid; justify-items: center; align-content: start; transition: left .7s cubic-bezier(.3,.7,.2,1), top .7s, transform .7s; }
-#pcard .cover { border-radius: 22px; }
-.heart { position: absolute; top: 22px; right: 24px; width: 40px; height: 40px; border: 0; background: transparent; cursor: pointer; color: var(--muted); padding: 0; }
+#pcard { left: 300px; top: 136px; width: 330px; height: 470px; border-radius: 42px; padding: 76px 36px 30px; display: grid; justify-items: center; align-content: start; transition: left .7s cubic-bezier(.3,.7,.2,1), top .7s, transform .7s; }
+#pcard .cover { border-radius: 18px; }
+.heart { position: absolute; top: 20px; right: 22px; width: 40px; height: 40px; border: 0; background: transparent; cursor: pointer; color: var(--muted); padding: 0; }
 .heart svg { width: 30px; height: 30px; }
-.heart.on { color: var(--mom); }
-.share { position: absolute; top: 22px; left: 24px; width: 40px; height: 40px; border: 0; background: transparent; cursor: pointer; color: var(--muted); padding: 0; }
+.heart.on { color: #f6d36c; }
+.heart:not(.on) { color: #dcd9e6; }
+.share { position: absolute; top: 20px; left: 22px; width: 40px; height: 40px; border: 0; background: transparent; cursor: pointer; color: var(--muted); padding: 0; }
 .share svg { width: 28px; height: 28px; }
-.p-title { flex: none; min-height: 40px; line-height: 40px; margin-top: 16px; font-size: 28px; font-weight: 700; text-align: center; max-width: 330px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.p-artist { margin-top: 4px; font-size: 16px; color: var(--muted); }
-.p-prog { width: 100%; margin-top: 14px; }
-.p-prog .track { height: 5px; }
+.p-title { flex: none; min-height: 36px; line-height: 36px; margin-top: 26px; font-size: 25px; font-weight: 500; text-align: center; max-width: 270px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-artist { margin-top: 2px; font-size: 15px; color: var(--ink2); white-space: nowrap; }
+.p-prog { width: 100%; margin-top: 22px; }
+.p-prog .track { height: 6px; }
+.p-prog .track i { background: var(--bar, var(--accent)); transition: width .3s linear, background .6s; }
 .p-times { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 8px; font-variant-numeric: tabular-nums; }
-.p-ctrl { display: flex; align-items: center; gap: 38px; margin-top: 6px; }
+.p-ctrl { display: flex; align-items: center; gap: 48px; margin-top: 14px; }
 .p-ctrl button { border: 0; background: transparent; cursor: pointer; color: var(--ink); padding: 0; display: grid; place-items: center; }
 .p-ctrl .play { width: 60px; height: 60px; border-radius: 50%; background: #fff; box-shadow: 0 8px 22px rgba(150,140,200,.22); }
-.p-ctrl svg { width: 26px; height: 26px; }
+.p-ctrl svg { width: 22px; height: 22px; }
+.p-ctrl .play svg { width: 26px; height: 26px; }
 
-#stack { position: absolute; left: 850px; top: 128px; width: 470px; height: 484px; transition: opacity .5s, left .7s; }
+#stack { position: absolute; left: 820px; top: 128px; width: 470px; height: 484px; transition: opacity .5s, left .7s; }
 .sitem { position: absolute; left: 0; width: 440px; height: 78px; border-radius: 20px; background: rgba(255,255,255,.88); box-shadow: 0 10px 24px rgba(150,140,200,.14); display: flex; align-items: center; gap: 18px; padding: 0 20px; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; transition: top .6s cubic-bezier(.3,.7,.2,1), transform .6s, opacity .6s; }
 .sitem.cur { box-shadow: 0 0 0 1.5px rgba(243,179,211,.55), 0 14px 40px rgba(243,179,211,.55); }
 .sitem b { display: block; font-size: 19px; font-weight: 500; }
@@ -165,30 +168,32 @@ body {
 #sender-card .sc-song { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); }
 #sender-card .msgq { font-size: 16px; color: var(--ink2); background: rgba(245,243,250,.9); border-radius: 14px; padding: 12px 16px; line-height: 1.5; }
 
-.divider { position: absolute; left: 800px; top: 150px; height: 440px; width: 1px; background: var(--line); opacity: 0; transition: opacity .5s; }
-#react-card { left: 860px; top: 236px; width: 580px; height: 230px; padding: 36px 44px; opacity: 0; transform: translateY(16px); transition: opacity .6s, transform .6s; pointer-events: none; }
-#react-card .cap { margin-bottom: 26px; }
-#react-card .rc-row { display: flex; gap: 22px; align-items: flex-start; }
-#react-card .rc-dot { width: 36px; height: 36px; border-radius: 50%; flex: none; margin-top: 2px; }
-#react-card b { display: block; font-size: 25px; font-weight: 700; margin-bottom: 8px; }
-#react-card p { margin: 0; font-size: 16px; color: var(--muted); }
+.divider { position: absolute; left: 760px; top: 110px; height: 500px; width: 1px; background: var(--line); opacity: 0; transition: opacity .5s; }
+#react-card { left: 870px; top: 232px; width: 400px; height: 112px; padding: 18px 30px; border-radius: 30px; opacity: 0; transform: translateY(16px); transition: opacity .6s, transform .6s; pointer-events: none; }
+#react-card .cap { margin-bottom: 4px; font-size: 13px; }
+#react-card .rc-row { display: flex; gap: 22px; align-items: center; }
+#react-card .rc-dot { width: 32px; height: 32px; border-radius: 50%; flex: none; filter: blur(2px); }
+#react-card b { display: block; font-size: 19px; font-weight: 500; margin-bottom: 4px; }
+#react-card p { margin: 0; font-size: 12px; color: var(--muted); }
 
-#recv-panel { position: absolute; left: 700px; top: 150px; width: 730px; height: 450px; padding: 10px 10px 0 30px; opacity: 0; transform: translateX(30px); transition: opacity .6s, transform .6s; pointer-events: none; }
-#recv-panel .rp-row { display: flex; gap: 40px; align-items: center; margin-top: 30px; }
-#recv-panel b { display: block; font-size: 34px; font-weight: 700; }
-#recv-panel .rp-artist { font-size: 18px; color: var(--muted); margin-top: 6px; }
-#recv-panel .rp-from { display: flex; align-items: center; gap: 10px; font-size: 16px; color: var(--ink2); margin-top: 22px; }
-#recv-panel .rp-from i { width: 12px; height: 12px; border-radius: 50%; }
-#recv-panel .rp-msg { margin-top: 12px; font-size: 16px; color: var(--ink2); }
-#recv-panel .rp-foot { position: absolute; left: 30px; right: 10px; bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 26px; font-size: 15px; color: var(--muted); }
-#recv-panel .btn { padding: 14px 60px; }
-.pc-label { position: absolute; left: 150px; top: 116px; opacity: 0; transition: opacity .5s; }
+#recv-card { left: 138px; top: 210px; width: 340px; height: 196px; border-radius: 30px; padding: 22px 26px; opacity: 0; transform: translateX(-30px); transition: opacity .6s, transform .6s; pointer-events: none; }
+#recv-card .rc-from { position: relative; font-size: 13px; color: var(--ink2); margin-left: 54px; }
+#recv-card .rc-from::before { content: ""; position: absolute; left: -62px; top: -24px; width: 80px; height: 70px; border-radius: 50%; background: radial-gradient(circle, var(--c, var(--sis)), transparent 70%); opacity: .7; filter: blur(6px); }
+#recv-card .rc-main { position: relative; display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+#recv-card .rc-main b { display: block; font-size: 21px; font-weight: 700; }
+#recv-card .rc-main small { font-size: 12px; color: var(--ink2); }
+#recv-card .rc-note { flex: 1; font-size: 12px; color: var(--ink); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin-left: 8px; }
+#recv-card .rc-btns { display: flex; justify-content: space-between; margin-top: 16px; }
+#recv-card .rc-btns .btn { font-size: 13px; padding: 8px 26px; }
+#recv-card .rc-btns .plus { width: 46px; padding: 0; height: 34px; font-size: 22px; line-height: 1; }
 
-#send-panel { position: absolute; left: 770px; top: 150px; width: 640px; height: 460px; opacity: 0; transform: translateX(30px); transition: opacity .6s, transform .6s; pointer-events: none; }
-#send-panel .h { font-size: 32px; font-weight: 500; color: var(--ink2); }
-#send-panel .sub { font-size: 13px; margin-top: 8px; }
-.chips { display: flex; gap: 56px; margin: 46px 0 40px 40px; }
-.chip-p { position: relative; width: 110px; height: 110px; border: 0; background: transparent; cursor: pointer; font: inherit; font-size: 18px; color: var(--ink2); padding: 0; display: grid; place-items: center; }
+#send-panel { position: absolute; left: 745px; top: 150px; width: 520px; height: 460px; opacity: 0; transform: translateX(30px); transition: opacity .6s, transform .6s; pointer-events: none; }
+#send-panel .h { font-size: 31px; font-weight: 700; color: var(--ink); transition: color .4s; white-space: nowrap; }
+#send-panel.picked .h { color: var(--muted); font-weight: 500; }
+#send-panel .sub { font-size: 10px; margin-top: 10px; letter-spacing: .06em; color: var(--ink2); }
+.chips { display: flex; gap: 70px; margin: 44px 0 50px 10px; }
+#send-panel.picked .chip-p[aria-pressed="false"] { opacity: .18; }
+.chip-p { position: relative; width: 110px; height: 110px; transition: opacity .4s; border: 0; background: transparent; cursor: pointer; font: inherit; font-size: 18px; color: var(--ink2); padding: 0; display: grid; place-items: center; }
 .chip-p::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, var(--c) 0%, transparent 70%); opacity: .45; transition: opacity .3s, transform .3s; }
 .chip-p span { position: relative; }
 .chip-p[aria-pressed="true"] { color: var(--ink); font-weight: 500; }
@@ -196,30 +201,29 @@ body {
 .msgbox { display: flex; align-items: center; gap: 16px; height: 58px; border-radius: 999px; background: rgba(255,255,255,.9); box-shadow: 0 8px 22px rgba(150,140,200,.14); padding: 0 24px; color: var(--muted); }
 .msgbox input { flex: 1; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--ink); outline: none; }
 .msgbox svg { width: 22px; height: 22px; flex: none; }
-#send-go { width: 100%; margin-top: 22px; padding: 20px; font-size: 20px; }
+#send-go { width: 100%; margin-top: 22px; padding: 22px; font-size: 19px; background: linear-gradient(180deg, #ffffff, #f2f0f7); }
 
 #sc-player.l-sender #sender-card { opacity: 1; transform: none; pointer-events: auto; }
-#sc-player.l-sender #pcard { left: 570px; }
-#sc-player.l-sender #stack { left: 1060px; }
+#sc-player.l-sender #pcard { left: 575px; }
+#sc-player.l-sender #stack { left: 1000px; }
 #sc-player.l-react #react-card { opacity: 1; transform: none; }
 #sc-player.l-react .divider { opacity: 1; }
-#sc-player.l-react #stack, #sc-player.l-recv #stack, #sc-player.l-send #stack { opacity: 0; pointer-events: none; }
-#sc-player.l-react #pcard { left: 290px; }
-#sc-player.l-recv #pcard { left: 150px; top: 160px; transform: scale(.92); transform-origin: top left; }
-#sc-player.l-recv .pc-label { opacity: 1; }
-#sc-player.l-recv #recv-panel { opacity: 1; transform: none; pointer-events: auto; }
-#sc-player.l-recv .divider { opacity: 1; left: 600px; }
-#sc-player.l-send #pcard { left: 230px; }
+#sc-player.l-react #stack, #sc-player.l-send #stack { opacity: 0; pointer-events: none; }
+#sc-player.l-react #pcard { left: 330px; }
+#sc-player.l-recv #recv-card { opacity: 1; transform: none; pointer-events: auto; }
+#sc-player.l-recv #pcard { left: 575px; }
+#sc-player.l-recv #stack { left: 1000px; }
+#sc-player.l-send #pcard { left: 300px; }
 #sc-player.l-send #send-panel { opacity: 1; transform: none; pointer-events: auto; }
 
 /* ---------- sent / preference ---------- */
 #sc-sent .wrapc { position: absolute; left: 0; right: 0; top: 150px; display: grid; justify-items: center; text-align: center; }
 .checkc { width: 74px; height: 74px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 10px 30px rgba(150,140,200,.25); color: var(--accent-deep); }
 .checkc svg { width: 38px; height: 38px; }
-#sc-sent .h { margin-top: 30px; }
+#sc-sent .h { margin-top: 26px; text-shadow: 0 0 18px rgba(185,163,238,.55); }
 #sent-chips { display: flex; gap: 70px; margin-top: 60px; }
 #sent-chips .chip-p { cursor: default; }
-.ghostpill { margin-top: 40px; width: 460px; height: 50px; border-radius: 999px; background: rgba(255,255,255,.55); color: var(--muted); display: grid; place-items: center; font-size: 15px; }
+.ghostpill { margin-top: 44px; width: 480px; height: 62px; border-radius: 999px; background: rgba(255,255,255,.55); color: var(--ink2); display: grid; place-items: center; font-size: 16px; filter: blur(3px); box-shadow: 0 10px 30px rgba(150,140,200,.12); }
 #pref-card { left: 72px; right: 72px; top: 246px; height: 290px; padding: 50px 56px 30px; }
 .pref-row { display: flex; align-items: center; gap: 30px; }
 .pref-icon { width: 84px; height: 84px; border-radius: 50%; background: #efecf7; display: grid; place-items: center; color: var(--ink2); flex: none; }
@@ -313,7 +317,6 @@ body {
 
         <!-- 재생 -->
         <section class="scene off" id="sc-player">
-          <div class="cap pc-label">Current track</div>
           <div class="card" id="sender-card">
             <div class="from"><i id="sc-dot"></i><span id="sc-from"></span></div>
             <div class="sc-song" id="sc-song"></div>
@@ -338,20 +341,17 @@ body {
             <div class="cap">New</div>
             <div class="rc-row"><span class="rc-dot" id="rc-dot"></span><div><b id="rc-title"></b><p>좋아요 반응이 가족 기록에 추가됐어요</p></div></div>
           </div>
-          <div id="recv-panel">
-            <div class="cap">Song received</div>
-            <div class="rp-row">
-              <div id="rp-cover-slot"></div>
-              <div><b id="rp-title"></b><div class="rp-artist" id="rp-artist"></div><div class="rp-from"><i id="rp-dot"></i><span id="rp-from"></span></div><div class="rp-msg" id="rp-msg"></div></div>
-            </div>
-            <div class="rp-foot"><span>다음 곡으로 추가돼요</span><button class="btn" id="btn-recv" type="button">확인</button></div>
+          <div class="card" id="recv-card">
+            <div class="rc-from" id="rv-from"></div>
+            <div class="rc-main"><div id="rv-cover-slot"></div><div><b id="rv-title"></b><small id="rv-artist"></small></div><div class="rc-note" id="rv-msg"></div></div>
+            <div class="rc-btns"><button class="btn plus" id="btn-recv-add" type="button" aria-label="다음 곡으로 추가">+</button><button class="btn" id="btn-recv" type="button">확인</button></div>
           </div>
           <div id="send-panel">
             <h2 class="h">가족 중 누가 들으면 좋아할 것 같아요?</h2>
-            <p class="sub">여러 명 고를 수 있어요</p>
+            <p class="sub">PASS A SONG</p>
             <div class="chips" id="send-chips"></div>
-            <label class="msgbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><input id="send-msg" type="text" maxlength="40" placeholder="메시지를 남겨 보세요 (선택)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></label>
-            <button class="btn" id="send-go" type="button" disabled>음악 전하기 →</button>
+            <label class="msgbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><input id="send-msg" type="text" maxlength="40" placeholder="메시지 남기기 (선택)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></label>
+            <button class="btn" id="send-go" type="button" disabled>음악 건네기 →</button>
           </div>
           <div class="pager" id="pager"><i class="on"></i><i></i><i></i></div>
         </section>
@@ -361,7 +361,7 @@ body {
           <div class="wrapc">
             <div class="checkc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
             <h2 class="h">음악이 전달됐어요</h2>
-            <p class="sub">가족에게 선택한 음악과 메시지를 보냈어요</p>
+            <p class="sub">가족에게 세진님의 음악과 메시지를 보냈어요.</p>
             <div id="sent-chips"></div>
             <div class="ghostpill" id="sent-msg"></div>
           </div>
@@ -394,7 +394,7 @@ body {
           <div><b>Space</b>재생 / 일시정지</div>
           <div><b>← →</b>이전 곡 / 다음 곡</div>
           <div><b>L</b>엄마의 좋아요 도착</div>
-          <div><b>R</b>올언니가 보낸 노래 도착</div>
+          <div><b>R</b>올언니가 보낸 노래 도착 (+ 다음 곡 / 확인)</div>
           <div><b>N</b>"이 노래 별로야" (취향 반영)</div>
           <div><b>S</b>노래 보내기</div>
           <div><b>E</b>도착</div>
@@ -423,15 +423,17 @@ const RIDERS = ['mom', 'dad', 'sis'];
 const hasBatchim = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c % 28 !== 0; };
 const subj = (id) => PEOPLE[id].name + (hasBatchim(PEOPLE[id].name) ? '이' : '가');
 
+// bg/fg/bar: abstract cover colors and the progress-bar tint for each song
 const QUEUE = [
-  { title: 'Too Good', artist: 'Christian Kuria', owner: 'sis', len: 234, tint: 'mom' },
-  { title: '밤편지', artist: '아이유', owner: 'mom', len: 253, tint: 'sis' },
-  { title: 'September', artist: 'Earth, Wind & Fire', owner: 'dad', len: 215, tint: 'mom' },
-  { title: 'Cream Soda', artist: 'EXO', owner: 'sis', len: 203, tint: 'dad' },
-  { title: 'Lush Life', artist: 'Zara Larsson', owner: 'mom', len: 201, tint: 'dad' },
-  { title: '걱정말아요 그대', artist: '전인권', owner: 'dad', len: 272, tint: 'sis' },
+  { title: 'Too Good', artist: 'Christian Kuria - Borderline', owner: 'dad', len: 249, bg: '#c4699d', fg: '#33507a', bar: '#c98bb0' },
+  { title: 'NEON', artist: 'A2O & A2O LITE', owner: 'sis', len: 364, bg: '#f3f8ee', fg: '#8fdc58', bar: '#9ee36c' },
+  { title: 'DADZ LOVE', artist: 'Justin Bieber & Lil B', owner: 'sis', len: 364, bg: '#101013', fg: '#2a2a30', bar: '#6d6b78' },
+  { title: 'Lush Life', artist: 'Zara Larsson', owner: 'mom', len: 201, bg: '#a9c6d8', fg: '#eaa4ad', bar: '#d9a1ad' },
+  { title: 'Cream Soda', artist: 'EXO', owner: 'mom', len: 203, bg: '#efe2f2', fg: '#db7bb4', bar: '#d995c2' },
+  { title: 'YUKON', artist: 'Justin Bieber', owner: 'dad', len: 222, bg: '#5c5c62', fg: '#8d8d95', bar: '#8f8f99' },
 ];
-const RECEIVED = { title: "Can't Let Go", artist: 'Earth, Wind & Fire', owner: 'sis', len: 196, tint: 'dad', from: 'sis', msg: '엄마 아빠 이 노래 기억나?' };
+const RECEIVED = { title: '야경', artist: '터치드', owner: 'sis', len: 236, bg: '#fff5c9', fg: '#f0c21a', bar: '#ecc640', from: 'sis', msg: '퇴근길에 듣기 좋은 노래!' };
+const ME = '세진';
 const PLISTS = {
   mom: [{ title: '밤편지', artist: '아이유', owner: 'mom', tint: 'sis' }, { title: 'Lush Life', artist: 'Zara Larsson', owner: 'mom', tint: 'dad' }, { title: '사건의 지평선', artist: '윤하', owner: 'mom', tint: 'dad' }, { title: '봄날', artist: '방탄소년단', owner: 'mom', tint: 'sis' }],
   dad: [{ title: 'September', artist: 'Earth, Wind & Fire', owner: 'dad', tint: 'mom' }, { title: '걱정말아요 그대', artist: '전인권', owner: 'dad', tint: 'sis' }, { title: '서른 즈음에', artist: '김광석', owner: 'dad', tint: 'mom' }, { title: 'Too Good', artist: 'Christian Kuria', owner: 'dad', tint: 'mom' }],
@@ -444,6 +446,7 @@ const hexRgb = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16),
 const rgba = (h, a) => { const [r, g, b] = hexRgb(h); return `rgba(${r},${g},${b},${a})`; };
 // abstract cover art: a pale square in one family color with a soft circle in another
 function cover(song, size) {
+  if (song.bg) return `<div class="cover" style="width:${size}px;height:${size}px;background:radial-gradient(circle at 70% 75%, ${mixHex(song.bg, '#ffffff', 0.12)}, ${song.bg})"><i style="width:${Math.round(size * 0.62)}px;height:${Math.round(size * 0.62)}px;background:radial-gradient(circle at 45% 40%, ${mixHex(song.fg, '#ffffff', 0.25)}, ${song.fg} 60%, transparent 72%);filter:blur(${Math.max(1, size / 40).toFixed(1)}px)"></i></div>`;
   const a = PEOPLE[song.tint || song.owner].color, b = PEOPLE[song.owner].color;
   return `<div class="cover" style="width:${size}px;height:${size}px;background:linear-gradient(135deg, ${mixHex(a, '#ffffff', 0.55)}, ${mixHex(a, '#ffffff', 0.25)})"><i style="width:${Math.round(size * 0.46)}px;height:${Math.round(size * 0.46)}px;background:radial-gradient(circle at 40% 35%, ${mixHex(b, '#ffffff', 0.45)}, ${b})"></i></div>`;
 }
@@ -653,7 +656,7 @@ function drawFrame() {
 }
 
 /* ---------- scenes ---------- */
-const LABELS = { start: '', board: 'ON BOARD', confirmed: '', together: 'ON BOARD', mix: 'CREW SHARE', player: 'NOW PLAYING', sent: 'CREW SHARE', pref: 'FAMILY MIX', arrive: 'ARRIVAL' };
+const LABELS = { start: '', board: 'ON BOARD', confirmed: '', together: 'ON BOARD', mix: 'CREW SHARE', player: 'NOW PLAYING', sent: 'SONG SHARE', pref: 'FAMILY MIX', arrive: 'ARRIVAL' };
 let timers = [];
 const later = (fn, ms) => { const id = setTimeout(fn, ms); timers.push(id); return id; };
 const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
@@ -666,7 +669,7 @@ function go(scene, { push = true } = {}) {
 }
 function setLabel() {
   let l = LABELS[st.scene];
-  if (st.scene === 'player') l = st.layout === 'react' ? 'FAMILY RESPONSE' : st.layout === 'send' ? 'CREW SHARE' : 'NOW PLAYING';
+  if (st.scene === 'player') l = 'SONG SHARE';
   $('#tb-label').textContent = l;
 }
 
@@ -748,10 +751,11 @@ function setLayout(l) {
 }
 function renderSong() {
   const s = st.queue[st.cur];
-  $('#p-cover-slot').innerHTML = cover(s, 232);
+  $('#p-cover-slot').innerHTML = cover(s, 166);
+  $('#pcard').style.setProperty('--bar', s.bar || 'var(--accent)');
   $('#p-title').textContent = s.title;
   $('#p-artist').textContent = s.artist;
-  $('#p-dur').textContent = fmt(s.len);
+  $('#p-dur').textContent = '-' + fmt(s.len);
   $('#p-bar').style.width = '0%'; $('#p-cur').textContent = '0:00';
   $('#btn-heart').classList.toggle('on', st.liked.has(st.cur));
   if (s.from) {
@@ -814,27 +818,33 @@ function reaction(by = 'mom') {
   setLayout('react');
   st.reactUntil = st.t + 7;
 }
-// a song is sent to the car (SONG RECEIVED)
+// a song is sent to the car: compact card on the left, + puts it next, 확인 just acknowledges it
 function received() {
   if (st.scene !== 'player' || st.recvDone || st.layout === 'send') return;
   st.recvDone = true; st.pendingRecv = true;
   const r = RECEIVED;
-  $('#rp-cover-slot').innerHTML = cover(r, 170);
-  $('#rp-title').textContent = r.title;
-  $('#rp-artist').textContent = r.artist;
-  $('#rp-dot').style.background = PEOPLE[r.from].color;
-  $('#rp-from').textContent = `${subj(r.from)} 보냈어요`;
-  $('#rp-msg').textContent = `“${r.msg}”`;
+  $('#recv-card').style.setProperty('--c', PEOPLE[r.from].color);
+  $('#rv-from').textContent = `'${PEOPLE[r.from].name}' 님이 보냈어요`;
+  $('#rv-cover-slot').innerHTML = cover(r, 70);
+  $('#rv-title').textContent = r.title;
+  $('#rv-artist').textContent = r.artist;
+  $('#rv-msg').textContent = r.msg;
   setLayout('recv');
 }
-$('#btn-recv').addEventListener('click', () => {
+$('#btn-recv-add').addEventListener('click', () => {
   if (!st.pendingRecv) return;
   st.pendingRecv = false;
   st.queue.splice(st.cur + 1, 0, { ...RECEIVED });
   $('#stack').innerHTML = '';
   setLayout('normal');
   renderStack();
-  toast('다음 곡으로 추가했어요');
+  toast(`"${RECEIVED.title}"을 다음 곡으로 추가했어요`);
+});
+$('#btn-recv').addEventListener('click', () => {
+  if (!st.pendingRecv) return;
+  st.pendingRecv = false;
+  setLayout('normal');
+  toast('받은 노래는 가족 기록에 남겨 둘게요');
 });
 // "이 노래 별로야" → FAMILY MIX
 function dislike() {
@@ -850,6 +860,7 @@ function openSend() {
   $('#send-msg').value = '';
   $('#send-chips').innerHTML = RIDERS.map((id) => `<button class="chip-p" type="button" data-id="${id}" aria-pressed="false" style="--c:${PEOPLE[id].color}"><span>${PEOPLE[id].name}</span></button>`).join('');
   $('#send-go').disabled = true;
+  $('#send-panel').classList.remove('picked');
   setLayout('send');
 }
 $('#btn-share').addEventListener('click', () => (st.layout === 'send' ? setLayout('normal') : openSend()));
@@ -859,6 +870,7 @@ $('#send-chips').addEventListener('click', (e) => {
   if (st.sendSel.has(id)) st.sendSel.delete(id); else st.sendSel.add(id);
   b.setAttribute('aria-pressed', String(st.sendSel.has(id)));
   $('#send-go').disabled = st.sendSel.size === 0;
+  $('#send-panel').classList.toggle('picked', st.sendSel.size > 0);
 });
 $('#send-go').addEventListener('click', () => {
   if (!st.sendSel.size) return;
@@ -942,8 +954,8 @@ function frame(now) {
     if (st.songT >= SONG_SEC) jump(st.cur + 1);
     // family events arrive on their own during the ride
     if (st.scene === 'player') {
-      if (!st.reactDone && st.cur === 0 && st.songT > 13) reaction('mom');
-      if (!st.recvDone && st.cur === 1 && st.songT > 9) received();
+      if (!st.reactDone && st.cur === 1 && st.songT > 10) reaction('mom');
+      if (!st.recvDone && st.cur === 2 && st.songT > 8) received();
       if (st.layout === 'react' && st.t > st.reactUntil) setLayout('normal');
     }
     if (++tick % 4 === 0 && st.scene === 'player' && st.queue[st.cur]) {
@@ -951,6 +963,7 @@ function frame(now) {
       const p = Math.min(1, st.songT / SONG_SEC);
       $('#p-bar').style.width = `${(p * 100).toFixed(1)}%`;
       $('#p-cur').textContent = fmt(p * s.len);
+      $('#p-dur').textContent = '-' + fmt(s.len - p * s.len);
     }
   }
   drawFrame();

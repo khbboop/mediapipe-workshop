@@ -169,7 +169,7 @@ body {
 #sender-card .msgq { font-size: 16px; color: var(--ink2); background: rgba(245,243,250,.9); border-radius: 14px; padding: 12px 16px; line-height: 1.5; }
 
 .divider { position: absolute; left: 760px; top: 110px; height: 500px; width: 1px; background: var(--line); opacity: 0; transition: opacity .5s; }
-#react-card { left: 870px; top: 232px; width: 400px; height: 112px; padding: 18px 30px; border-radius: 30px; opacity: 0; transform: translateY(16px); transition: opacity .6s, transform .6s; pointer-events: none; }
+#react-card { left: 860px; top: 220px; width: 460px; height: auto; padding: 18px 30px; border-radius: 30px; opacity: 0; transform: translateY(16px); transition: opacity .6s, transform .6s; pointer-events: none; }
 #react-card .cap { margin-bottom: 4px; font-size: 13px; }
 #react-card .rc-row { display: flex; gap: 22px; align-items: center; }
 #react-card .rc-dot { width: 32px; height: 32px; border-radius: 50%; flex: none; filter: blur(2px); }
@@ -206,7 +206,7 @@ body {
 #sc-player.l-sender #sender-card { opacity: 1; transform: none; pointer-events: auto; }
 #sc-player.l-sender #pcard { left: 575px; }
 #sc-player.l-sender #stack { left: 1000px; }
-#sc-player.l-react #react-card { opacity: 1; transform: none; }
+#sc-player.l-react #react-card { opacity: 1; transform: none; pointer-events: auto; }
 #sc-player.l-react .divider { opacity: 1; }
 #sc-player.l-react #stack, #sc-player.l-send #stack { opacity: 0; pointer-events: none; }
 #sc-player.l-react #pcard { left: 330px; }
@@ -243,6 +243,72 @@ body {
 .saved svg { width: 34px; height: 34px; color: var(--accent-deep); }
 .va { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; letter-spacing: .12em; color: var(--ink2); }
 
+/* ---------- flow controls ---------- */
+.btn.go { background: linear-gradient(120deg, #f7dcec 0%, #e1d8fb 50%, #d3e8fb 100%); font-weight: 500; padding: 18px 44px; }
+.guide { animation: guide 1.8s ease-in-out infinite; border-radius: 999px; }
+@keyframes guide { 0%, 100% { box-shadow: 0 0 0 0 rgba(165,150,226,0); } 50% { box-shadow: 0 0 0 12px rgba(165,150,226,.38); } }
+.ride-only { display: none; }
+.riding .ride-only { display: grid; }
+.next-wrap { position: absolute; left: 0; right: 0; display: flex; justify-content: center; }
+
+/* home */
+.home-date { font-size: 18px; color: var(--ink2); }
+.home-time { font-size: 72px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.home-hi { font-size: 22px; color: var(--ink); margin-top: 6px; }
+.hcard { top: 330px; height: 290px; padding: 28px 32px; display: grid; align-content: start; gap: 14px; }
+#h-family { left: 72px; width: 420px; }
+#h-last { left: 524px; width: 470px; }
+#h-go { left: 1026px; width: 442px; background: linear-gradient(160deg, rgba(255,255,255,.9), rgba(240,236,252,.85)); }
+.fam { display: flex; gap: 26px; margin-top: 10px; }
+.fam div { display: grid; justify-items: center; gap: 8px; font-size: 16px; }
+.fam .av { width: 70px; height: 70px; }
+.hsmall { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.hcovers { display: flex; gap: 14px; }
+.hbig { font-size: 24px; font-weight: 700; }
+#h-go .btn { justify-self: start; margin-top: 8px; }
+
+/* F1 */
+.qr { width: 250px; height: 250px; border-radius: 34px; background: #fff; display: grid; place-items: center; box-shadow: 0 20px 50px rgba(150,140,200,.2); cursor: pointer; transition: transform .3s; }
+.qr:hover { transform: scale(1.02); }
+.qr canvas { width: 196px; height: 196px; }
+#reg-wrap { position: absolute; left: 0; right: 0; top: 120px; display: grid; justify-items: center; gap: 14px; text-align: center; }
+#reg-wrap .h { font-size: 32px; margin-top: 18px; }
+#sc-register.done .qr { opacity: .25; filter: blur(2px); pointer-events: none; }
+#reg-done { display: none; }
+#sc-register.done #reg-done { display: grid; justify-items: center; gap: 10px; }
+#sc-register.done #reg-ask { display: none; }
+
+/* F3 band */
+#jr-card { left: 72px; right: 72px; top: 250px; height: 270px; padding: 34px 44px; }
+.jr-head { display: flex; justify-content: space-between; align-items: baseline; }
+.jr-head b { font-size: 26px; font-weight: 700; }
+.jbar { display: flex; gap: 6px; height: 22px; margin-top: 40px; position: relative; }
+.jseg { border-radius: 999px; min-width: 0; }
+.jlabels { display: flex; gap: 6px; margin-top: 12px; }
+.jlabels span { font-size: 13px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jmark { position: absolute; top: 50%; left: 0; width: 30px; height: 30px; margin: -15px 0 0 -6px; border-radius: 50%; background: #fff; box-shadow: 0 4px 14px rgba(80,70,140,.3); }
+.jnote { margin-top: 26px; font-size: 14px; color: var(--muted); }
+.mini-band { position: absolute; left: 300px; right: 300px; bottom: 34px; display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--ink2); transition: opacity .4s; }
+.mini-band .jbar { flex: 1; height: 6px; margin: 0; gap: 3px; }
+.mini-band .jmark { width: 16px; height: 16px; margin: -8px 0 0 -8px; transition: left .4s linear; }
+#sc-player.l-send .mini-band, #sc-player.l-recv .mini-band { opacity: 0; }
+
+/* F5 mixing */
+#react-card .mixline { height: 4px; border-radius: 999px; background: #eeebf6; overflow: hidden; margin-top: 16px; }
+#react-card .mixline i { display: block; height: 100%; width: 0; border-radius: 999px; }
+#react-card .rc-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 12px; color: var(--muted); }
+#react-card .rc-foot .btn { font-size: 14px; padding: 8px 26px; }
+
+/* voice */
+#voice { position: absolute; left: 50%; top: 50%; width: 700px; transform: translate(-50%, -50%); padding: 34px 40px; z-index: 6; display: grid; justify-items: center; gap: 16px; text-align: center; }
+#voice .wave { display: flex; gap: 8px; height: 34px; align-items: center; }
+#voice .wave i { width: 8px; border-radius: 999px; background: var(--accent); animation: wv 1s ease-in-out infinite; }
+#voice .wave i:nth-child(2) { animation-delay: .15s; } #voice .wave i:nth-child(3) { animation-delay: .3s; } #voice .wave i:nth-child(4) { animation-delay: .45s; }
+@keyframes wv { 0%, 100% { height: 10px; } 50% { height: 32px; } }
+#voice .vt { font-size: 22px; font-weight: 500; }
+#voice .vrow { display: flex; gap: 16px; margin-top: 6px; }
+#voice .vrow .btn { white-space: nowrap; font-size: 18px; padding: 14px 28px; }
+
 /* ---------- toast & keys help ---------- */
 .toast { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); background: rgba(255,255,255,.92); border-radius: 999px; padding: 12px 26px; font-size: 17px; color: var(--ink); box-shadow: 0 12px 30px rgba(150,140,200,.25); z-index: 8; animation: up .4s ease-out; white-space: nowrap; }
 @keyframes up { from { opacity: 0; transform: translate(-50%, 10px); } }
@@ -264,6 +330,8 @@ body {
           <div class="tb-left"><span class="dots9" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand">ECHO NOD</span></div>
           <div class="tb-label" id="tb-label"></div>
           <div class="tb-right">
+            <button class="iconbtn ride-only" id="btn-mic" type="button" aria-label="에코노드에게 말하기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button>
+            <button class="iconbtn ride-only" id="btn-power" type="button" aria-label="시동 끄기 (도착)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 3.5v8"/><path d="M7 6.5a7.5 7.5 0 1 0 10 0"/></svg></button>
             <button class="iconbtn" id="btn-back" type="button" aria-label="뒤로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
             <button class="iconbtn" id="btn-home" type="button" aria-label="홈"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg></button>
           </div>
@@ -277,7 +345,24 @@ body {
               <text x="30" y="88">echo</text><text x="30" y="176">nod</text>
             </g>
           </svg>
-          <div class="tap-hint">화면을 누르면 시작해요</div>
+          <div class="tap-hint">화면을 누르면 켜져요</div>
+        </section>
+
+        <!-- F1 차 등록 -->
+        <section class="scene off" id="sc-register">
+          <div id="reg-wrap">
+            <div class="qr" id="qr-btn" role="button" tabindex="0" aria-label="앱으로 QR 찍기"><canvas id="qr" width="196" height="196"></canvas></div>
+            <div id="reg-ask"><h2 class="h">ECHO NOD 앱으로 찍어 주세요</h2><p class="sub">가족 중 한 명만 찍으면 모두 함께 써요</p></div>
+            <div id="reg-done"><h2 class="h">우리 가족 차로 등록됐어요</h2><p class="sub">한 명이 등록하면 가족 모두 사용할 수 있어요</p><button class="btn go" id="reg-next" type="button">홈으로 →</button></div>
+          </div>
+        </section>
+
+        <!-- 홈 -->
+        <section class="scene off" id="sc-home">
+          <div class="head"><div class="home-date" id="h-date"></div><div class="home-time" id="h-time"></div><div class="home-hi">세진님, 오늘은 누구와 함께 가나요?</div></div>
+          <div class="card hcard" id="h-family"><span class="cap">Our family</span><div class="fam" id="h-fam"></div><span class="hsmall">차에 등록된 가족 3명 · ECHO NOD 앱으로 연결돼 있어요</span></div>
+          <div class="card hcard" id="h-last"><span class="cap">Last ride</span><span class="hsmall">어제 오후 6:10 · 학교 → 집 · 28분</span><div class="hcovers" id="h-covers"></div><span class="hsmall">우리 가족의 노래 2곡이 생겼어요</span></div>
+          <div class="card hcard" id="h-go"></div>
         </section>
 
         <!-- 탑승 인식 -->
@@ -304,6 +389,7 @@ body {
             <div class="tog-cols" id="tog-cols"></div>
           </div>
           <div class="foot"><span class="dotl">탑승 정보는 자동으로 업데이트돼요</span><span>음악 조합 준비 중</span></div>
+          <div class="next-wrap" style="top:582px"><button class="btn go" id="tog-next" type="button">출발하기 →</button></div>
         </section>
 
         <!-- 플레이리스트 조합 -->
@@ -312,7 +398,20 @@ body {
           <div class="search"><span>오늘의 무드</span><b>즐겁게 · 가볍게 · 함께 부를 수 있게</b></div>
           <div class="card plist" id="pl-mom"></div>
           <div class="card plist" id="pl-dad"></div>
-          <div class="mix-core"><div class="glow"></div><p>플레이리스트 조합 중</p><small>가족 취향을 섞고 있어요</small></div>
+          <div class="mix-core"><div class="glow"></div><p id="mix-t">플레이리스트 조합 중</p><small id="mix-s">가족 취향을 섞고 있어요</small></div>
+          <div class="next-wrap" style="top:604px"><button class="btn go" id="mix-next" type="button" hidden>여정의 띠 보기 →</button></div>
+        </section>
+
+        <!-- F3 여정의 띠 -->
+        <section class="scene off" id="sc-journey">
+          <div class="head"><h2 class="h">오늘의 여정</h2><p class="sub" id="jr-sub">가족이 돌아가며 노래의 주인공이 돼요</p></div>
+          <div class="card" id="jr-card">
+            <div class="jr-head"><span class="cap">Journey band</span><span>도착까지 <b id="jr-remain">32분</b></span></div>
+            <div class="jbar" id="jr-bar"></div>
+            <div class="jlabels" id="jr-labels"></div>
+            <div class="jnote">구간 순서는 차가 짜요 · 첫 구간은 랜덤 · 섞인 칸은 둘의 노래가 나오는 구간</div>
+          </div>
+          <div class="next-wrap" style="top:570px"><button class="btn go" id="jr-next" type="button">음악 시작 →</button></div>
         </section>
 
         <!-- 재생 -->
@@ -339,7 +438,9 @@ body {
           <div class="divider"></div>
           <div class="card" id="react-card">
             <div class="cap">New</div>
-            <div class="rc-row"><span class="rc-dot" id="rc-dot"></span><div><b id="rc-title"></b><p>좋아요 반응이 가족 기록에 추가됐어요</p></div></div>
+            <div class="rc-row"><span class="rc-dot" id="rc-dot"></span><div><b id="rc-title"></b><p id="rc-sub">좋아요 반응이 가족 기록에 추가됐어요</p></div></div>
+            <div class="mixline"><i id="rc-mix"></i></div>
+            <div class="rc-foot"><span id="rc-hint">섞이는 동안 ♥를 다시 누르면 취소돼요</span><button class="btn" id="rc-ok" type="button" hidden>확인</button></div>
           </div>
           <div class="card" id="recv-card">
             <div class="rc-from" id="rv-from"></div>
@@ -353,6 +454,13 @@ body {
             <label class="msgbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><input id="send-msg" type="text" maxlength="40" placeholder="메시지 남기기 (선택)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></label>
             <button class="btn" id="send-go" type="button" disabled>음악 건네기 →</button>
           </div>
+          <div class="mini-band"><span>도착까지 <b id="mb-remain">32분</b></span><div class="jbar" id="mb-bar"></div></div>
+          <div class="card" id="voice" hidden>
+            <div class="wave"><i></i><i></i><i></i><i></i></div>
+            <div class="vt">"에코노드"가 듣고 있어요</div>
+            <p class="sub" style="margin:0">알아듣는 말은 두 가지예요</p>
+            <div class="vrow"><button class="btn" id="v-like" type="button">"에코노드, 좋다"</button><button class="btn" id="v-nope" type="button">"에코노드, 이 노래 별로야"</button></div>
+          </div>
           <div class="pager" id="pager"><i class="on"></i><i></i><i></i></div>
         </section>
 
@@ -364,6 +472,7 @@ body {
             <p class="sub">가족에게 세진님의 음악과 메시지를 보냈어요.</p>
             <div id="sent-chips"></div>
             <div class="ghostpill" id="sent-msg"></div>
+            <button class="btn go" id="sent-ok" type="button" style="margin-top:30px">확인</button>
           </div>
         </section>
 
@@ -377,6 +486,7 @@ body {
             </div>
             <div class="pref-foot"><span>반영 기록</span><span>SKIP PREFERENCE UPDATED</span></div>
           </div>
+          <div class="next-wrap" style="top:576px"><button class="btn go" id="pref-ok" type="button">확인</button></div>
         </section>
 
         <!-- 도착 -->
@@ -387,17 +497,18 @@ body {
             <div><span class="cap">Soundtrack of this ride</span><div class="st-covers" id="arr-covers"></div><span class="arr-where" id="arr-sum"></span></div>
             <div><span class="saved"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>저장 완료</span><span class="arr-where">앱에서 다시 보기</span><span class="va">VIEW IN APP</span></div>
           </div>
+          <div class="next-wrap" style="top:592px"><button class="btn go" id="arr-ok" type="button">홈으로</button></div>
         </section>
 
         <div class="toast" id="toast" hidden></div>
         <div id="keys" hidden>
           <div><b>Space</b>재생 / 일시정지</div>
           <div><b>← →</b>이전 곡 / 다음 곡</div>
-          <div><b>L</b>엄마의 좋아요 도착</div>
-          <div><b>R</b>올언니가 보낸 노래 도착 (+ 다음 곡 / 확인)</div>
-          <div><b>N</b>"이 노래 별로야" (취향 반영)</div>
-          <div><b>S</b>노래 보내기</div>
-          <div><b>E</b>도착</div>
+          <div><b>L</b>F5 조수석 좋다</div>
+          <div><b>R</b>F6 노래 도착</div>
+          <div><b>N</b>F7 "이 노래 별로야"</div>
+          <div><b>S</b>노래 건네기</div>
+          <div><b>E</b>F8 도착</div>
           <div><b>0</b>처음으로</div>
           <div><b>H</b>이 도움말 닫기</div>
         </div>
@@ -429,7 +540,7 @@ const QUEUE = [
   { title: 'NEON', artist: 'A2O & A2O LITE', owner: 'sis', len: 364, bg: '#f3f8ee', fg: '#8fdc58', bar: '#9ee36c' },
   { title: 'DADZ LOVE', artist: 'Justin Bieber & Lil B', owner: 'sis', len: 364, bg: '#101013', fg: '#2a2a30', bar: '#6d6b78' },
   { title: 'Lush Life', artist: 'Zara Larsson', owner: 'mom', len: 201, bg: '#a9c6d8', fg: '#eaa4ad', bar: '#d9a1ad' },
-  { title: 'Cream Soda', artist: 'EXO', owner: 'mom', len: 203, bg: '#efe2f2', fg: '#db7bb4', bar: '#d995c2' },
+  { title: 'Cream Soda', artist: 'EXO', owner: 'mom', also: 'sis', len: 203, bg: '#efe2f2', fg: '#db7bb4', bar: '#d995c2' },
   { title: 'YUKON', artist: 'Justin Bieber', owner: 'dad', len: 222, bg: '#5c5c62', fg: '#8d8d95', bar: '#8f8f99' },
 ];
 const RECEIVED = { title: '야경', artist: '터치드', owner: 'sis', len: 236, bg: '#fff5c9', fg: '#f0c21a', bar: '#ecc640', from: 'sis', msg: '퇴근길에 듣기 좋은 노래!' };
@@ -650,39 +761,95 @@ function drawFrame() {
     jx += (tx - jx) * 0.08; jy += (ty - jy) * 0.08;
     const song = st.queue[st.cur];
     const cols = [PEOPLE[song.owner].color];
-    if (st.liked.has(st.cur) && song.owner !== 'mom') cols.push(PEOPLE.mom.color);
+    if (song.also) cols.push(PEOPLE[song.also].color);
+    if ((st.liked.has(st.cur) || st.mixing) && song.owner !== 'mom') cols.push(PEOPLE.mom.color);
     drawJelly(ctx, jx, jy, 210, lutFor(cols), jellyA);
   }
 }
 
+/* ---------- QR (pattern only, not a real code) ---------- */
+(function drawQR() {
+  const c = $('#qr').getContext('2d'), n = 29, S = 196, m = S / n;
+  let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  c.fillStyle = '#fff'; c.fillRect(0, 0, S, S);
+  c.fillStyle = '#4a4566';
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    const inF = (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
+    if (!inF && rnd() > 0.52) { c.beginPath(); c.arc(x * m + m / 2, y * m + m / 2, m * 0.42, 0, TAU); c.fill(); }
+  }
+  const finder = (x, y) => {
+    c.fillStyle = '#4a4566'; c.beginPath(); c.roundRect(x * m, y * m, 7 * m, 7 * m, m * 1.6); c.fill();
+    c.fillStyle = '#fff'; c.beginPath(); c.roundRect((x + 1) * m, (y + 1) * m, 5 * m, 5 * m, m * 1.1); c.fill();
+    c.fillStyle = '#b9a3ee'; c.beginPath(); c.roundRect((x + 2) * m, (y + 2) * m, 3 * m, 3 * m, m * 0.8); c.fill();
+  };
+  finder(0, 0); finder(n - 7, 0); finder(0, n - 7);
+})();
+
 /* ---------- scenes ---------- */
-const LABELS = { start: '', board: 'ON BOARD', confirmed: '', together: 'ON BOARD', mix: 'CREW SHARE', player: 'NOW PLAYING', sent: 'SONG SHARE', pref: 'FAMILY MIX', arrive: 'ARRIVAL' };
+// Order follows the front-display spec: F1 → home → F2 → F3 → F4 (F5, F6, F7 inside) → F8 → home.
+// Only boarding confirmation (F2) moves on its own; every other step waits for a tap.
+const LABELS = { start: '', register: 'CAR SETUP', home: 'HOME', board: 'ON BOARD', confirmed: '', together: 'ON BOARD', mix: 'CREW SHARE', journey: 'JOURNEY', player: 'SONG SHARE', sent: 'SONG SHARE', pref: 'FAMILY MIX', arrive: 'ARRIVAL' };
 let timers = [];
 const later = (fn, ms) => { const id = setTimeout(fn, ms); timers.push(id); return id; };
 const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+st.registered = false; st.step = 0; st.riding = false;
 function go(scene, { push = true } = {}) {
   if (push && st.scene !== scene) st.history.push(st.scene);
   st.scene = scene;
   document.querySelectorAll('.scene').forEach((el) => el.classList.toggle('off', el.id !== 'sc-' + scene));
   $('#topbar').classList.toggle('ghost', scene === 'start' || scene === 'confirmed');
-  setLabel();
+  $('#topbar').classList.toggle('riding', st.riding && ['player', 'sent', 'pref'].includes(scene));
+  setLabel(); guide();
 }
-function setLabel() {
-  let l = LABELS[st.scene];
-  if (st.scene === 'player') l = 'SONG SHARE';
-  $('#tb-label').textContent = l;
+function setLabel() { $('#tb-label').textContent = LABELS[st.scene] || ''; }
+// soft pulse on the control that leads to the next spec step
+function guide() {
+  document.querySelectorAll('.guide').forEach((el) => el.classList.remove('guide'));
+  if (st.scene !== 'player' || st.layout !== 'normal' || !$('#voice').hidden) return;
+  const target = ['#btn-heart', '#btn-next', '#btn-mic', '#btn-power'][st.step];
+  if (target) $(target).classList.add('guide');
 }
 
-// start → boarding
+/* F1 */
+function powerOn() {
+  ensureCtx();
+  if (st.registered) { showHome(); return; }
+  $('#sc-register').classList.remove('done');
+  go('register', { push: false });
+}
+function scanQR() { if (st.scene !== 'register' || st.registered) return; st.registered = true; $('#sc-register').classList.add('done'); }
+$('#qr-btn').addEventListener('click', (e) => { e.stopPropagation(); scanQR(); });
+$('#qr-btn').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scanQR(); } });
+$('#reg-next').addEventListener('click', (e) => { e.stopPropagation(); showHome(); });
+
+/* home */
+function showHome() {
+  clearTimers();
+  const d = new Date(), h = d.getHours();
+  $('#h-date').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일`;
+  $('#h-time').textContent = `${h < 12 ? '오전' : '오후'} ${h % 12 || 12}:${String(d.getMinutes()).padStart(2, '0')}`;
+  $('#h-fam').innerHTML = RIDERS.map((id) => `<div><span class="av" style="background:${mixHex(PEOPLE[id].color, '#ffffff', 0.55)}"><i style="background:${PEOPLE[id].color}"></i></span>${PEOPLE[id].name}</div>`).join('');
+  $('#h-covers').innerHTML = QUEUE.slice(0, 3).map((s) => cover(s, 96)).join('');
+  if (st.riding) {
+    const s = st.queue[st.cur];
+    $('#h-go').innerHTML = `<span class="cap">Now playing</span><div style="display:flex;gap:16px;align-items:center">${cover(s, 72)}<div><div class="hbig">${esc(s.title)}</div><div class="hsmall">${esc(s.artist)}</div></div></div><span class="hsmall">주행 중이에요 · 음악은 계속 나오고 있어요</span><button class="btn go" id="h-btn" type="button">재생 화면으로 →</button>`;
+  } else {
+    $('#h-go').innerHTML = `<span class="cap">Ready</span><div class="hbig">출발할 준비가 됐어요</div><span class="hsmall">문을 닫으면 누가 탔는지 자동으로 확인해요</span><button class="btn go" id="h-btn" type="button">문 닫고 탑승 확인 →</button>`;
+  }
+  $('#h-btn').addEventListener('click', (e) => { e.stopPropagation(); if (st.riding) go('player'); else startRide(); });
+  go('home', { push: false });
+}
+
+/* F2 (automatic) */
 function startRide() {
   clearTimers(); ensureCtx();
-  st.board = { mom: 2, dad: 1, sis: 0 };
-  st.history = [];
-  go('board', { push: false });
+  st.board = { mom: 1, dad: 1, sis: 0 };
+  go('board');
   renderBoard();
-  later(() => { st.board.dad = 2; renderBoard(); checkBoard(); }, 1600);
+  later(() => { st.board.mom = 2; renderBoard(); checkBoard(); }, 900);
+  later(() => { st.board.dad = 2; renderBoard(); checkBoard(); }, 1700);
   later(() => { st.board.sis = 1; renderBoard(); }, 2600);
-  later(() => confirmRider('sis'), 5200);
+  later(() => confirmRider('sis'), 4600);
 }
 const PERSON_SVG = (c) => `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.4"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c.7-4 3.6-6.2 7-6.2s6.3 2.2 7 6.2z"/></svg>`;
 function renderBoard() {
@@ -703,15 +870,11 @@ function confirmRider(id) {
 function checkBoard() {
   if (st.scene === 'board' && RIDERS.every((r) => st.board[r] === 2)) {
     clearTimers();
-    later(() => go('confirmed'), 1100);
-    later(() => { renderTogether(); go('together'); }, 3800);
-    later(() => { renderMix(); go('mix'); }, 7600);
-    later(() => { $('#pl-mom').classList.add('mixing'); $('#pl-dad').classList.add('mixing'); }, 8600);
-    later(startPlayer, 12000);
+    later(() => go('confirmed'), 1000);
+    later(() => { renderTogether(); go('together'); }, 3600); // boarding result; from here on, taps only
   }
 }
 $('#persons').addEventListener('click', (e) => { const p = e.target.closest('.person'); if (p) { e.stopPropagation(); confirmRider(p.dataset.id); } });
-
 function renderTogether() {
   $('#tog-count').textContent = `${RIDERS.length} people`;
   $('#tog-cols').innerHTML = RIDERS.map((id) => {
@@ -719,6 +882,8 @@ function renderTogether() {
     return `<div class="tog-col"><span class="av" style="background:${mixHex(p.color, '#ffffff', 0.55)}"><i style="background:${p.color}"></i></span><div><b>${p.name}</b><small>${p.en}</small></div><span class="pip" style="background:${p.color}"></span></div>`;
   }).join('');
 }
+
+/* F3 */
 function renderMix() {
   ['mom', 'dad'].forEach((id) => {
     const el = $('#pl-' + id); el.classList.remove('mixing');
@@ -726,15 +891,38 @@ function renderMix() {
       PLISTS[id].map((s) => `<div class="row">${cover(s, 44)}<div><b>${esc(s.title)}</b><small>${esc(s.artist)}</small></div></div>`).join('');
   });
 }
+$('#tog-next').addEventListener('click', (e) => {
+  e.stopPropagation();
+  renderMix(); $('#mix-next').hidden = true;
+  $('#mix-t').textContent = '플레이리스트 조합 중'; $('#mix-s').textContent = '가족 취향을 섞고 있어요';
+  go('mix');
+  later(() => { $('#pl-mom').classList.add('mixing'); $('#pl-dad').classList.add('mixing'); }, 700);
+  later(() => { $('#mix-t').textContent = '플레이리스트가 준비됐어요'; $('#mix-s').textContent = '6곡 · 3명의 취향'; $('#mix-next').hidden = false; }, 2600);
+});
+const segOwners = (s) => [s.owner, ...(s.also ? [s.also] : [])];
+const segBg = (s) => { const c = segOwners(s).map((id) => PEOPLE[id].color); return c.length > 1 ? `linear-gradient(90deg, ${c.join(', ')})` : c[0]; };
+const TRIP_MIN = 32;
+function bandHTML() { const tot = st.queue.reduce((a, s) => a + s.len, 0); return st.queue.map((s) => `<i class="jseg" style="flex:${s.len / tot};background:${segBg(s)}"></i>`).join(''); }
+$('#mix-next').addEventListener('click', (e) => {
+  e.stopPropagation();
+  st.queue = QUEUE.map((x) => ({ ...x }));
+  const tot = st.queue.reduce((a, s) => a + s.len, 0);
+  $('#jr-bar').innerHTML = bandHTML() + '<span class="jmark"></span>';
+  $('#jr-labels').innerHTML = st.queue.map((s) => `<span style="flex:${s.len / tot}">${segOwners(s).map((id) => PEOPLE[id].name).join(' · ')}</span>`).join('');
+  $('#jr-remain').textContent = `${TRIP_MIN}분`;
+  go('journey');
+});
+$('#jr-next').addEventListener('click', (e) => { e.stopPropagation(); startPlayer(); });
 
-/* ---------- player ---------- */
+/* F4 */
 function startPlayer() {
   clearTimers();
-  st.queue = QUEUE.map((s) => ({ ...s }));
-  st.cur = 0; st.songT = 0; st.paused = false; st.layout = 'normal';
-  st.recvDone = false; st.reactDone = false; st.pendingRecv = false;
+  if (!st.queue.length) st.queue = QUEUE.map((x) => ({ ...x }));
+  st.cur = 0; st.songT = 0; st.paused = false; st.layout = 'normal'; st.step = 0; st.riding = true;
+  st.recvDone = false; st.pendingRecv = false; st.mixing = null;
   st.liked = new Set(); st.disliked = new Set(); st.played = new Set([0]);
   $('#stack').innerHTML = '';
+  $('#mb-bar').innerHTML = bandHTML() + '<span class="jmark" id="mb-mark"></span>';
   go('player');
   renderSong(); renderStack();
   startMusic();
@@ -747,7 +935,7 @@ function setLayout(l) {
   if (song && song.from && l === 'normal') sp.classList.add('l-sender');
   if (l !== 'normal') sp.classList.add('l-' + l);
   [...$('#pager').children].forEach((d, i) => d.classList.toggle('on', i === (l === 'normal' ? 0 : l === 'send' ? 2 : 1)));
-  setLabel();
+  guide();
 }
 function renderSong() {
   const s = st.queue[st.cur];
@@ -784,12 +972,10 @@ function renderStack() {
 }
 $('#stack').addEventListener('click', (e) => { const it = e.target.closest('.sitem'); if (it) jump(+it.dataset.i); });
 function jump(i) {
-  if (i < 0) i = 0;
-  if (i >= st.queue.length) { arrive(); return; }
+  i = (i + st.queue.length) % st.queue.length; // the queue loops; only the power button ends the ride
   st.cur = i; st.songT = 0; st.played.add(i);
   renderSong(); renderStack(); setRate();
 }
-
 function togglePause() {
   if (st.scene !== 'player') return;
   st.paused = !st.paused;
@@ -798,27 +984,42 @@ function togglePause() {
   $('#btn-play').setAttribute('aria-label', st.paused ? '재생' : '일시정지');
 }
 $('#btn-play').addEventListener('click', togglePause);
-$('#btn-next').addEventListener('click', () => jump(st.cur + 1));
+// ⏭: the first press after F5 is when 올언니's song lands (F6, "다음 곡으로 나옴")
+$('#btn-next').addEventListener('click', () => { if (st.step === 1 && !st.recvDone) { received(); return; } jump(st.cur + 1); });
 $('#btn-prev').addEventListener('click', () => { if (st.songT > 3) st.songT = 0; else jump(st.cur - 1); });
-$('#btn-heart').addEventListener('click', () => {
-  if (st.liked.has(st.cur)) { st.liked.delete(st.cur); toast('좋아요를 취소했어요'); }
-  else { st.liked.add(st.cur); toast(`${subj(st.queue[st.cur].owner)} 고른 노래에 좋아요를 남겼어요`); }
-  $('#btn-heart').classList.toggle('on', st.liked.has(st.cur));
-});
 
-// a family member likes the song (FAMILY RESPONSE)
-function reaction(by = 'mom') {
+/* F5 좋다: the passenger (엄마) taps ♥; the driver says "에코노드, 좋다" */
+const MIX_SEC = 4;
+function like(by) {
   if (st.scene !== 'player' || st.layout === 'send' || st.layout === 'recv') return;
-  st.reactDone = true;
-  st.liked.add(st.cur);
+  const s = st.queue[st.cur];
+  if (st.mixing && st.mixing.by === by) { // pressed again while mixing → cancel
+    st.mixing = null; $('#btn-heart').classList.remove('on'); setLayout('normal'); toast('좋다를 취소했어요'); return;
+  }
+  if (st.liked.has(st.cur)) { toast('이미 좋다고 했어요'); return; }
+  st.mixing = { by, t0: st.t };
   $('#btn-heart').classList.add('on');
   $('#rc-dot').style.background = `radial-gradient(circle, #fff 0%, ${PEOPLE[by].color} 60%)`;
   $('#rc-dot').style.boxShadow = `0 0 24px 8px ${rgba(PEOPLE[by].color, 0.45)}`;
   $('#rc-title').textContent = `${subj(by)} 이 노래를 좋아해요`;
+  $('#rc-sub').textContent = `${PEOPLE[s.owner].name}의 색에 ${PEOPLE[by].name}의 색이 섞이고 있어요`;
+  $('#rc-mix').style.background = `linear-gradient(90deg, ${PEOPLE[s.owner].color}, ${PEOPLE[by].color})`;
+  $('#rc-mix').style.width = '0%';
+  $('#rc-hint').hidden = false; $('#rc-ok').hidden = true;
   setLayout('react');
-  st.reactUntil = st.t + 7;
 }
-// a song is sent to the car: compact card on the left, + puts it next, 확인 just acknowledges it
+function finishMix() {
+  const { by } = st.mixing; st.mixing = null;
+  const s = st.queue[st.cur];
+  st.liked.add(st.cur);
+  const pair = [s.owner, by].filter((v, i, a) => a.indexOf(v) === i).map((id) => PEOPLE[id].name);
+  $('#rc-sub').textContent = pair.length > 1 ? `끝까지 섞였어요 · ${pair[0]}${hasBatchim(pair[0]) ? '과' : '와'} ${pair[1]}의 노래에 저장했어요` : '좋아요 반응이 가족 기록에 추가됐어요';
+  $('#rc-hint').hidden = true; $('#rc-ok').hidden = false;
+}
+$('#btn-heart').addEventListener('click', () => like('mom'));
+$('#rc-ok').addEventListener('click', () => { setLayout('normal'); if (st.step === 0) st.step = 1; guide(); });
+
+/* F6 노래 도착 */
 function received() {
   if (st.scene !== 'player' || st.recvDone || st.layout === 'send') return;
   st.recvDone = true; st.pendingRecv = true;
@@ -831,29 +1032,42 @@ function received() {
   $('#rv-msg').textContent = r.msg;
   setLayout('recv');
 }
+function recvDone() { if (st.step === 1) st.step = 2; guide(); }
 $('#btn-recv-add').addEventListener('click', () => {
   if (!st.pendingRecv) return;
   st.pendingRecv = false;
   st.queue.splice(st.cur + 1, 0, { ...RECEIVED });
   $('#stack').innerHTML = '';
+  $('#mb-bar').innerHTML = bandHTML() + '<span class="jmark" id="mb-mark"></span>';
   setLayout('normal');
-  renderStack();
-  toast(`"${RECEIVED.title}"을 다음 곡으로 추가했어요`);
+  jump(st.cur + 1);
+  toast(`'${PEOPLE[RECEIVED.from].name}' 님이 보낸 "${RECEIVED.title}"을 틀었어요`);
+  recvDone();
 });
 $('#btn-recv').addEventListener('click', () => {
   if (!st.pendingRecv) return;
   st.pendingRecv = false;
   setLayout('normal');
   toast('받은 노래는 가족 기록에 남겨 둘게요');
+  recvDone();
 });
-// "이 노래 별로야" → FAMILY MIX
+
+/* voice → F5 (driver) or F7 */
+function openVoice() { if (st.scene !== 'player') return; if (st.layout !== 'normal') setLayout('normal'); $('#voice').hidden = false; guide(); }
+const closeVoice = () => { $('#voice').hidden = true; guide(); };
+$('#btn-mic').addEventListener('click', (e) => { e.stopPropagation(); $('#voice').hidden ? openVoice() : closeVoice(); });
+$('#v-like').addEventListener('click', () => { closeVoice(); like('dad'); });
+$('#v-nope').addEventListener('click', () => { closeVoice(); dislike(); });
+
+/* F7 별로 */
 function dislike() {
   if (st.scene !== 'player') return;
   st.disliked.add(st.cur);
   go('pref');
-  later(() => { if (st.scene === 'pref') { go('player', { push: false }); st.history.pop(); jump(st.cur + 1); } }, 3600);
 }
-// send a song to family
+$('#pref-ok').addEventListener('click', (e) => { e.stopPropagation(); go('player', { push: false }); if (st.step === 2) st.step = 3; guide(); });
+
+/* 건네기 (send a song) */
 function openSend() {
   if (st.scene !== 'player') return;
   st.sendSel = new Set();
@@ -879,48 +1093,47 @@ $('#send-go').addEventListener('click', () => {
   $('#sent-msg').textContent = msg ? `“${msg}”` : `${st.queue[st.cur].title} · ${st.queue[st.cur].artist}`;
   setLayout('normal');
   go('sent');
-  later(() => { if (st.scene === 'sent') { go('player', { push: false }); st.history.pop(); } }, 3200);
 });
+$('#sent-ok').addEventListener('click', (e) => { e.stopPropagation(); go('player', { push: false }); });
 
-// arrival
+/* F8 도착 */
 function arrive() {
+  if (!st.riding) return;
   clearTimers();
   stopMusic(2);
+  $('#voice').hidden = true;
   if (st.paused && actx) { st.paused = false; actx.resume(); }
   const d = new Date();
   const h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0');
   $('#arr-time').textContent = `${h < 12 ? '오전' : '오후'} ${h % 12 || 12}:${m}`;
-  $('#arr-where').textContent = '집 · 32분 이동';
+  $('#arr-where').textContent = `집 · ${TRIP_MIN}분 이동`;
   const picks = [...st.played].filter((i) => !st.disliked.has(i) && st.queue[i]).slice(0, 3).map((i) => st.queue[i]);
-  for (let i = 0; picks.length < 3; i++) if (!picks.includes(QUEUE[i])) picks.push(QUEUE[i]);
+  for (let i = 0; picks.length < 3; i++) if (!picks.some((p) => p.title === QUEUE[i].title)) picks.push(QUEUE[i]);
   $('#arr-covers').innerHTML = picks.map((s) => cover(s, 130)).join('');
-  const owners = new Set(picks.map((s) => s.owner));
+  const owners = new Set(picks.flatMap(segOwners));
   $('#arr-sum').textContent = `${picks.length}곡 · ${owners.size}명의 취향이 섞인 플레이리스트`;
+  st.riding = false; st.step = 4;
   go('arrive');
 }
+$('#btn-power').addEventListener('click', (e) => { e.stopPropagation(); arrive(); });
+$('#arr-ok').addEventListener('click', (e) => { e.stopPropagation(); st.queue = []; showHome(); });
 
 /* ---------- top bar & keys ---------- */
 $('#btn-back').addEventListener('click', (e) => {
   e.stopPropagation();
-  if (st.scene === 'player' && st.layout !== 'normal') { st.pendingRecv = false; setLayout('normal'); return; }
-  if (['sent', 'pref'].includes(st.scene)) { clearTimers(); go('player', { push: false }); return; }
-  if (st.scene === 'player' || st.scene === 'arrive') return; // the ride itself has no "back"
-  const prev = st.history.pop();
-  if (prev && prev !== 'start') { clearTimers(); go(prev, { push: false }); if (prev === 'board') renderBoard(); }
+  if (!$('#voice').hidden) { closeVoice(); return; }
+  if (st.scene === 'player' && st.layout !== 'normal') { if (st.pendingRecv) { st.pendingRecv = false; recvDone(); } st.mixing = null; setLayout('normal'); return; }
+  if (['sent', 'pref'].includes(st.scene)) { go('player', { push: false }); return; }
+  if (['together', 'mix', 'journey'].includes(st.scene)) { clearTimers(); const prev = { together: null, mix: 'together', journey: 'mix' }[st.scene]; if (prev) go(prev, { push: false }); }
 });
-$('#btn-home').addEventListener('click', (e) => { e.stopPropagation(); home(); });
-function home() { clearTimers(); stopMusic(0.6); st.queue = []; st.history = []; st.layout = 'normal'; if (st.paused && actx) { st.paused = false; actx.resume(); } go('start', { push: false }); }
-$('#wrap').addEventListener('click', () => {
-  ensureCtx();
-  if (st.scene === 'start') startRide();
-  else if (st.scene === 'arrive') home();
-});
+$('#btn-home').addEventListener('click', (e) => { e.stopPropagation(); if (st.registered) showHome(); });
+$('#wrap').addEventListener('click', () => { ensureCtx(); if (st.scene === 'start') powerOn(); });
 window.addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey || e.target.matches('input')) return;
   const k = e.key.toLowerCase();
   const map = {
     ' ': togglePause, arrowright: () => st.scene === 'player' && jump(st.cur + 1), arrowleft: () => st.scene === 'player' && jump(st.cur - 1),
-    l: () => reaction('mom'), r: received, n: dislike, s: openSend, e: () => st.scene === 'player' && arrive(), 0: home,
+    l: () => like('mom'), r: received, n: dislike, s: openSend, e: arrive, 0: () => (st.registered ? showHome() : null),
     h: () => { $('#keys').hidden = !$('#keys').hidden; },
   };
   if (map[k]) { e.preventDefault(); ensureCtx(); map[k](); }
@@ -952,11 +1165,10 @@ function frame(now) {
   if (st.queue.length && ['player', 'sent', 'pref'].includes(st.scene) && !st.paused) {
     st.songT += dt;
     if (st.songT >= SONG_SEC) jump(st.cur + 1);
-    // family events arrive on their own during the ride
-    if (st.scene === 'player') {
-      if (!st.reactDone && st.cur === 1 && st.songT > 10) reaction('mom');
-      if (!st.recvDone && st.cur === 2 && st.songT > 8) received();
-      if (st.layout === 'react' && st.t > st.reactUntil) setLayout('normal');
+    if (st.mixing) {
+      const m = Math.min(1, (st.t - st.mixing.t0) / MIX_SEC);
+      $('#rc-mix').style.width = `${(m * 100).toFixed(1)}%`;
+      if (m >= 1) finishMix();
     }
     if (++tick % 4 === 0 && st.scene === 'player' && st.queue[st.cur]) {
       const s = st.queue[st.cur];
@@ -964,6 +1176,9 @@ function frame(now) {
       $('#p-bar').style.width = `${(p * 100).toFixed(1)}%`;
       $('#p-cur').textContent = fmt(p * s.len);
       $('#p-dur').textContent = '-' + fmt(s.len - p * s.len);
+      const tot = st.queue.reduce((a, x) => a + x.len, 0), done = st.queue.slice(0, st.cur).reduce((a, x) => a + x.len, 0) + p * s.len;
+      const mk = $('#mb-mark'); if (mk) mk.style.left = `${(done / tot * 100).toFixed(2)}%`;
+      $('#mb-remain').textContent = `${Math.max(1, Math.round(TRIP_MIN * (1 - done / tot)))}분`;
     }
   }
   drawFrame();

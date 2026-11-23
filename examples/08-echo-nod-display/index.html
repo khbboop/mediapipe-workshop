@@ -283,14 +283,16 @@ body {
 .jr-head { display: flex; justify-content: space-between; align-items: baseline; }
 .jr-head b { font-size: 26px; font-weight: 700; }
 .jbar { display: flex; gap: 6px; height: 22px; margin-top: 40px; position: relative; }
-.jseg { border-radius: 999px; min-width: 0; }
+.jseg { border-radius: 999px; min-width: 0; filter: blur(4px); opacity: .85; }
 .jlabels { display: flex; gap: 6px; margin-top: 12px; }
 .jlabels span { font-size: 13px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.jmark { position: absolute; top: 50%; left: 0; width: 30px; height: 30px; margin: -15px 0 0 -6px; border-radius: 50%; background: #fff; box-shadow: 0 4px 14px rgba(80,70,140,.3); }
+.jmark { position: absolute; top: 50%; left: 0; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, #fff 16%, rgba(255,255,255,.75) 30%, rgba(196,176,244,.45) 46%, rgba(196,176,244,0) 70%); filter: blur(1.5px); animation: glowp 2.6s ease-in-out infinite; pointer-events: none; }
+@keyframes glowp { 50% { transform: scale(1.2); opacity: .8; } }
 .jnote { margin-top: 26px; font-size: 14px; color: var(--muted); }
 .mini-band { position: absolute; left: 300px; right: 300px; bottom: 34px; display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--ink2); transition: opacity .4s; }
 .mini-band .jbar { flex: 1; height: 6px; margin: 0; gap: 3px; }
-.mini-band .jmark { width: 16px; height: 16px; margin: -8px 0 0 -8px; transition: left .4s linear; }
+.mini-band .jseg { filter: blur(2px); }
+.mini-band .jmark { width: 30px; height: 30px; margin: -15px 0 0 -15px; transition: left .4s linear; }
 #sc-player.l-send .mini-band, #sc-player.l-recv .mini-band { opacity: 0; }
 
 /* F5 mixing */
